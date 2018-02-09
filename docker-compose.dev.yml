@@ -1,0 +1,16 @@
+version: '2'
+services:
+  spil:
+    image: spil_test_image
+    container_name: spil
+    ports:
+      - 8084:80
+    volumes:
+      - /var/www/EloLeft4Dead2-AKA-Spil/src:/src
+      - /data/db:/data/db
+    environment:
+      - DEBUG=True
+      - TESTING=True
+      - MONGODB_HOST=localhost
+      - MONGODB_PORT=27017
+      - MONGODB_DB=spil_dev
