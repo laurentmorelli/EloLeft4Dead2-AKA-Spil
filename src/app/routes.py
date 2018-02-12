@@ -172,7 +172,6 @@ def add_joueur():
         newjoueur = joueur.Joueur(
             _id=request.json['_id'],
             prenom=request.json['prenom'],
-            nom=request.json['nom'],
             pseudo=request.json['pseudo'],
             bot=request.json['bot'],
             comment=request.json['comment']

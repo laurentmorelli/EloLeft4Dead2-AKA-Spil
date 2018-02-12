@@ -43,7 +43,6 @@ class AppTest(unittest.TestCase):
                 dict(
                     _id='599dfae00000000000000000',
                     prenom='prenom',
-                    nom='nom',
                     pseudo='pseudo',
                     bot=False,
                     comment='comment',
@@ -66,7 +65,6 @@ class AppTest(unittest.TestCase):
                 dict(
                     _id='599dfae00000000000000000',
                     prenom='prenom',
-                    nom='nom',
                     pseudo='pseudo',
                     bot=False,
                     comment='comment',
@@ -82,7 +80,6 @@ class AppTest(unittest.TestCase):
                 dict(
                     _id='599dfae00000000000000000',
                     prenom='prenom',
-                    nom='nom',
                     pseudo='pseudo',
                     bot=False,
                     comment='comment',
