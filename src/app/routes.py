@@ -77,6 +77,7 @@ def add_match():
             score_team1=request.json['score_team1'],
             score_team2=request.json['score_team2'],
             date=request.json['date'],
+            #date=datetime.strptime(request.json['date'],"%d/%m/%Y"),
             map=request.json['map'],
             game_type=request.json['game_type']
         )

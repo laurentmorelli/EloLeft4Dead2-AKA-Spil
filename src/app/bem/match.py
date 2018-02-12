@@ -21,6 +21,6 @@ class Match(db.Document):
     team2_player4= db.StringField() 
     score_team1 = db.IntField(required=True)
     score_team2 = db.IntField(required=True)
-    date = db.DateTimeField(default=datetime.datetime.now)
+    date = db.StringField()
     map = db.StringField()         
     game_type = db.StringField()

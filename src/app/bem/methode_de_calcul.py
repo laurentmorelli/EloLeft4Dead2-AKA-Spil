@@ -10,4 +10,5 @@ from app.main import db
 #--------------
 class MethodeDeCalcul(db.Document):
     _id = db.StringField(required=True, primary_key=True)         
+    import_date = db.DateTimeField(default=datetime.datetime.now)
     #what ????
