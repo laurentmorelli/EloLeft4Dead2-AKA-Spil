@@ -1,4 +1,4 @@
 """ Application entrypoint"""
-from app import create_app
+from app import main
 
-application = create_app()
+application = main.create_app()
