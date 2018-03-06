@@ -9,7 +9,7 @@ from app.main import db
 # Match Document
 #--------------
 class Match(db.Document):
-    _id = db.StringField(required=True, primary_key=True)         
+    _id = db.IntField(required=True, primary_key=True)         
     import_date = db.DateTimeField(default=datetime.datetime.now)
     team1_player1= db.StringField() 
     team1_player2= db.StringField() 

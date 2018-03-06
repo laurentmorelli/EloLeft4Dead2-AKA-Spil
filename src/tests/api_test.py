@@ -459,7 +459,7 @@ class AppTest(unittest.TestCase):
             '/api/v1/matchs',
             data=json.dumps(
                 dict(
-                    _id='599dfae00000000000000000',
+                    _id=1,
                     team1_player1='toto',
                     team1_player2='toto',
                     team1_player3='toto',
@@ -489,7 +489,7 @@ class AppTest(unittest.TestCase):
             '/api/v1/matchs',
             data=json.dumps(
                 dict(
-                    _id='599dfae00000000000000000',
+                    _id=1,
                     team1_player1='toto',
                     team1_player2='toto',
                     team1_player3='toto',
@@ -520,7 +520,7 @@ class AppTest(unittest.TestCase):
             '/api/v1/matchs',
             data=json.dumps(
                 dict(
-                    _id='599dfae00000000000000000',
+                    _id=1,
                     team1_player1='toto',
                     team1_player2='toto',
                     team1_player3='toto',
@@ -544,7 +544,7 @@ class AppTest(unittest.TestCase):
             '/api/v1/matchs',
             data=json.dumps(
                 dict(
-                    _id='599dfae00000000000000000',
+                    _id=1,
                     team1_player1='toto',
                     team1_player2='toto',
                     team1_player3='toto',
@@ -596,7 +596,7 @@ class AppTest(unittest.TestCase):
         """Get matchs info"""
         self.test_add_match_success()
         # Request
-        response = self.client.get('/api/v1/matchs/599dfae00000000000000000', content_type='application/json')
+        response = self.client.get('/api/v1/matchs/1', content_type='application/json')
         # Check
         self.assertEquals('201 CREATED', response.status)
 
@@ -622,7 +622,7 @@ class AppTest(unittest.TestCase):
         """Delete a not existing match"""
         self.test_add_match_success()
         # Request
-        response = self.client.delete('/api/v1/matchs/599dfae00000000000000001', content_type='application/json')
+        response = self.client.delete('/api/v1/matchs/2', content_type='application/json')
         # Check
         count = match.Match.objects.count()
         self.assertEquals(1, count)
@@ -632,7 +632,7 @@ class AppTest(unittest.TestCase):
         """Delete an existing match"""
         self.test_add_match_success()
         # Request
-        response = self.client.delete('/api/v1/matchs/599dfae00000000000000000', content_type='application/json')
+        response = self.client.delete('/api/v1/matchs/1', content_type='application/json')
         # Check
         self.assertEquals('200 OK', response.status)
         count = match.Match.objects.count()
