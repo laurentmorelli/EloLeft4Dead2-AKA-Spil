@@ -303,7 +303,7 @@ class AppTest(unittest.TestCase):
             data=json.dumps(
                 dict(
                     _id='599dfae00000000000000000',
-                    id_match='toto',
+                    id_match=15,
                     id_methode='toto',
                     id_joueur='toto',
                     elo=10,
@@ -346,7 +346,7 @@ class AppTest(unittest.TestCase):
             data=json.dumps(
                 dict(
                     _id='599dfae00000000000000000',
-                    id_match='toto',
+                    id_match=15,
                     id_methode='toto',
                     id_joueur='toto',
                     elo=10,
@@ -361,7 +361,7 @@ class AppTest(unittest.TestCase):
             data=json.dumps(
                 dict(
                     _id='599dfae00000000000000000',
-                    id_match='toto',
+                    id_match=15,
                     id_methode='toto',
                     id_joueur='toto',
                     elo=10,

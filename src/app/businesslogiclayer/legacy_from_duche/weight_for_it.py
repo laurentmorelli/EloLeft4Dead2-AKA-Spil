@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #importe les fonctions dont on a besoin
 from numpy import *
 

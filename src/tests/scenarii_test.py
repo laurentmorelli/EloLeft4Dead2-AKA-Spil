@@ -6,6 +6,7 @@ from app.bem import calcul
 from app.bem import joueur
 from app.bem import match
 from app.bem import methode_de_calcul
+from app.businesslogiclayer import calculator
 
 
 class AppTest(unittest.TestCase):
@@ -74,6 +75,23 @@ class AppTest(unittest.TestCase):
         #we check that everything is fine
         match_number = match.Match.objects.count()
         self.assertEquals(64, match_number)
+
+        #for the moment we don't have any calculation in our database
+        calcul_number = calcul.Calcul.objects.count()
+        self.assertEquals(0, calcul_number)
+
+        #alright let's try to calculate the elo for the last match -> 63
+
+        match_to_calculate = match.Match.objects(_id = 63).first()
+        calculator.compute_elo_by_methode_by_match(given_match = match_to_calculate)
+
+        #ok we shall have now some calculations recorded in our db ;)
+        calcul_number = calcul.Calcul.objects.count()
+        self.assertEquals(15, calcul_number)
+
+
+
+        #self.assertEquals(1, 0)
 
 if __name__ == '__main__':
     unittest.main()

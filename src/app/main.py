@@ -6,12 +6,14 @@ import os
 # flask mongoengine
 db = MongoEngine()
 
-from app.routes import api
+from app.api_routes import api
+from app.app_routes import app_bp
 
 def create_app():
     """ Create and return a Flask app with right config depending on the environment"""
     app = Flask(__name__)
     app.register_blueprint(api)
+    app.register_blueprint(app_bp)
 
     app.config.update(
         MONGO_CONNECT=False,

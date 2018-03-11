@@ -409,7 +409,7 @@ def delete_methode_de_calcul(methode_de_calcul_id):
 # ----------
 # Gateway (NOT FOUND)
 # ----------
-@api.route('/', defaults={'invalid_path': ''}, methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
+@api.route('/api/', defaults={'invalid_path': ''}, methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 @api.route('/<path:invalid_path>', methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 def not_found_error(invalid_path):
     """Not found"""
