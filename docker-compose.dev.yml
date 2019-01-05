@@ -6,8 +6,8 @@ services:
     ports:
       - 8084:80
     volumes:
-      - /var/www/EloLeft4Dead2-AKA-Spil/src:/src
-      - /data/db:/data/db
+      - /code/EloLeft4Dead2-AKA-Spil/src:/src
+      - /code/data/db:/data/db
     environment:
       - DEBUG=True
       - TESTING=True
