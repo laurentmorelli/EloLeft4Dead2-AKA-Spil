@@ -10,7 +10,7 @@ Deal with it
 ### Introduction
 This project provides a docker container with :
 
-- Python 2.7
+- Python 3.6
 - Nginx
 - MongoDB
 - uWsgi
@@ -39,6 +39,11 @@ docker-compose -f docker-compose.dev.yml up -d
 - Open your browser : `localhost:8084` and start using endpoints
 
 If you need to go inside container : `docker-compose -f docker-compose.dev.yml exec spil bash`
+
+To restart dev docker : 
+```
+docker stop spil && docker-compose -f docker-compose.dev.yml up -d && docker exec -it spil bash
+```
 
 ### Run tests
 

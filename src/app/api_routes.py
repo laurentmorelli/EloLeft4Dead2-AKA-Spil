@@ -38,7 +38,7 @@ def matchs_information():
         lastmatch = match.Match.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastmatch.import_date}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -53,7 +53,7 @@ def match_information(match_id):
             return response(404, {'error': 'Invalid request : no match found with provided _id'})
         return response(201, {'data': currentmatch})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -90,7 +90,7 @@ def add_match():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -104,7 +104,7 @@ def delete_matchs():
         match.Match.objects.delete()
         return response(200, {'data' : {'message': 'All matchs have been successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -122,7 +122,7 @@ def delete_match(match_id):
         todelete_match.delete()
         return response(200, {'data': {'message': 'match successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -143,7 +143,7 @@ def joueurs_information():
         lastjoueur = joueur.Joueur.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastjoueur.import_date}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -158,7 +158,7 @@ def joueur_information(joueur_id):
             return response(404, {'error': 'Invalid request : no joueur found with provided _id'})
         return response(201, {'data': currentjoueur})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -185,7 +185,7 @@ def add_joueur():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -199,7 +199,7 @@ def delete_joueurs():
         joueur.Joueur.objects.delete()
         return response(200, {'data' : {'message': 'All joueurs have been successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -217,7 +217,7 @@ def delete_joueur(joueur_id):
         todelete_joueur.delete()
         return response(200, {'data': {'message': 'joueur successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # -------
@@ -237,7 +237,7 @@ def calculs_information():
         lastcalcul = calcul.Calcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastcalcul.import_date}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -252,7 +252,7 @@ def calcul_information(calcul_id):
             return response(404, {'error': 'Invalid request : no calcul found with provided _id'})
         return response(201, {'data': currentcalcul})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -279,7 +279,7 @@ def add_calcul():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -293,7 +293,7 @@ def delete_calculs():
         calcul.Calcul.objects.delete()
         return response(200, {'data' : {'message': 'All calculs have been successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -311,7 +311,7 @@ def delete_calcul(calcul_id):
         todelete_calcul.delete()
         return response(200, {'data': {'message': 'calcul successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -333,7 +333,7 @@ def methode_de_calculs_information():
         lastmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastmethode_de_calcul.import_date}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -348,7 +348,7 @@ def methode_de_calcul_information(methode_de_calcul_id):
             return response(404, {'error': 'Invalid request : no methode_de_calcul found with provided _id'})
         return response(201, {'data': currentmethode_de_calcul})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -371,7 +371,7 @@ def add_methode_de_calcul():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -385,7 +385,7 @@ def delete_methode_de_calculs():
         methode_de_calcul.MethodeDeCalcul.objects.delete()
         return response(200, {'data' : {'message': 'All methode_de_calculs have been successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -403,7 +403,7 @@ def delete_methode_de_calcul(methode_de_calcul_id):
         todelete_methode_de_calcul.delete()
         return response(200, {'data': {'message': 'methode_de_calcul successfully deleted'}})
     except Exception as exception:
-        print exception
+        print(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------

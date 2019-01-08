@@ -10,7 +10,7 @@ try:
     N = json.loads(argv[1])[1] #nombre de lignes=nombre de matchs
     id_w = json.loads(argv[1])[0] #methode utilisee
 except:
-    print "ERROR : python could not load arguments "
+    print("ERROR : python could not load arguments ")
     exit(1)
 
 
@@ -30,4 +30,4 @@ elif id_w==3:
 y=array(w).tolist()
 
 # reformatte par json et envoie sur stdout (pour php)
-print json.dumps(y)
+print(json.dumps(y))

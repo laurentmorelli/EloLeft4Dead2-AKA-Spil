@@ -1,28 +1,28 @@
-# inspired from  https://github.com/tiangolo/uwsgi-nginx-flask-docker/tree/master/python2.7
-FROM python:2.7
+FROM python:3.6
 
 MAINTAINER Laurent Morelli laurent.morelli@gmail.com
 
 # ======
 # uWSGI
 # ======
-RUN pip install uwsgi
+RUN pip install --upgrade pip && pip install uwsgi
 # Copy the base uWSGI ini file to enable default dynamic uwsgi process number
 COPY ./docker/conf/uwsgi.ini /etc/uwsgi/
 # Which uWSGI .ini file should be used, to make it customizable
 ENV UWSGI_INI /src/uwsgi.ini
 
+
 #=======
 # NGINX
 #=======
-ENV NGINX_VERSION 1.9.11-1~jessie
-
-RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
-	&& echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
+RUN apt-key adv --no-tty --keyserver keyserver.ubuntu.com --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
+	&& echo "deb http://nginx.org/packages/mainline/debian/ stretch nginx" | tee /etc/apt/sources.list.d/nginx.list \
 	&& apt-get update \
-	&& apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
+	&& apt-get install -y apt-utils \
+	&& apt-get install -y ca-certificates nginx gettext-base \
 	&& rm -rf /var/lib/apt/lists/*
 # forward request and error logs to docker log collector
+# TODO : should fix this with error_log /dev/stderr info; and access_log /dev/stdout;
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log
 EXPOSE 80 443
@@ -38,8 +38,8 @@ COPY ./docker/conf/nginx.conf /etc/nginx/conf.d/
 # ===============
 # Install MongoDB
 # ===============
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6 \
-	&& echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.4 main" | tee /etc/apt/sources.list.d/mongodb-org-3.4.list \
+RUN apt-key adv --no-tty --keyserver keyserver.ubuntu.com --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5 \
+	&& echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/3.6 main" | tee /etc/apt/sources.list.d/mongodb-org-3.6.list \
 	&& apt-get update && apt-get install -y mongodb-org \
 	&& mkdir -p /data/db
 

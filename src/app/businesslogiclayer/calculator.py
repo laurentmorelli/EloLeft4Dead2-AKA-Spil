@@ -61,10 +61,10 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 1000*(inner_match.score_team1-inner_match.score_team2)/(inner_match.score_team1+inner_match.score_team2)
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 500*(log(inner_match.score_team1)-log(inner_match.score_team2))
         except Exception as exception:
-            print "we are are"
-            print id_matchs_dim_dict[inner_match.id]
-            print id_joueurs_dim_dict[inner_match.team1_player1]
-            print exception
+            print("we are are")
+            print(id_matchs_dim_dict[inner_match.id])
+            print(id_joueurs_dim_dict[inner_match.team1_player1])
+            print(exception)
 
 
     pseudoinverted_matrice = pinv(matrice_participants)
