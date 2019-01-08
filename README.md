@@ -1,9 +1,9 @@
 # EloLeft4Dead2-AKA-Spil
 
 
-### What the fuck is that ?
+### What the heck is that ?
 
-Dis iz ze spil
+Well, if you don't know why your are here, please go away...
 
 Deal with it
 
@@ -49,7 +49,7 @@ docker stop spil && docker-compose -f docker-compose.dev.yml up -d && docker exe
 
 Run `nosetests` inside the container
 
-### Brutal clean of all dockers (BROFOOOOOORCE)
+### Brutal clean of all dockers
 
 ```
 docker rm -f $(docker ps -a -q)
