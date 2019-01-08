@@ -1,0 +1,224 @@
+
+
+
+
+/* //-- propriétés des classes -- */
+
+
+
+/* ????*/
+
+#main
+{
+    width:inherit;
+    float:none;
+    margin-top :1000px; 
+}
+
+input,button,textarea,select,optgroup,option{font-family:inherit;font-size:inherit;font-style:inherit;font-weight:inherit;}
+
+.pic { display: none; }
+
+
+
+/* //-- liens et autres styles -- */
+a { color: #990003; text-decoration: none; }
+a:hover {text-decoration:underline; }
+a:active {color:#C72801; }
+
+
+
+
+/* //-- fonts -- */
+
+h1, h2, h3, h4
+{
+    color:white;
+    text-shadow:#000000 2px 2px 2px,#000000 -2px 2px 2px,#000000 -2px -2px 2px,#000000 2px -2px 2px; 
+}
+h1, h2, h3, #menu { 
+    font-family: 'L4DF', arial, helvetica, clean, sans-serif;
+    text-transform:uppercase;
+    letter-spacing:0.15em;
+}
+h2 { font-size: 136% ; margin-top: 2em; }
+h3, h4 { font-size: 124%; }
+
+
+
+@font-face {
+    font-family: 'L4DF';
+    src: url('font/peacenow_basic-webfont.eot');
+    src: url('font/peacenow_basic-webfont.eot?#iefix') format('embedded-opentype'),
+         url('font/peacenow_basic-webfont.woff') format('woff'),
+         url('font/peacenow_basic-webfont.ttf') format('truetype'),
+         url('font/peacenow_basic-webfont.svg#peacenow_basicpeacenow_basic') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+
+/* Layout */
+
+
+
+html {
+    background-image: url('images/team.jpg');
+    background-repeat:no-repeat;
+    background-size: 100%;
+    background-position: center top;
+    background-color: black;
+    margin: 0px;
+    font-family: helvetica, clean, sans-serif;
+}
+
+
+body {
+    background-color: rgba(0,0,0,0.5);
+    padding:60px 3em ;
+    color: #ddd;
+    margin : 0px;
+    min-height: 640px;
+
+} 
+
+@media (min-width: 850px) {
+    body {
+        padding-left: 200px;
+        padding-right: 200px;
+    }
+}
+
+form
+{
+    margin: 10px 0px 50px;
+}
+
+input[type=submit] {
+    padding: 0.5em 1em;
+    margin-top: 1em;
+}
+
+
+/* Menu */ 
+
+#menu {
+    position: fixed;
+    top : 0px;
+    left: 0px;
+    background-color: rgba(250,250,250,0.1);
+    margin: 0px ;
+    padding: 0px;
+    width: 100%;
+}
+
+@media (max-width: 850px) {
+  #menu {
+    font-size: 60%;
+  }
+}
+
+#menu a
+{
+    text-decoration: none;
+    color:white;
+    text-shadow:#000000 2px 2px 2px,#000000 -2px 2px 2px,#000000 -2px -2px 2px,#000000 2px -2px 2px; 
+    transition : color 800ms, padding 200ms;
+}
+
+#menu a:hover
+{
+    color: #Fd7;
+}
+
+#menu li {
+    display: inline-block;
+    padding: 1em;
+}
+
+#menu li.active /* si on veut différencier la page en cours */
+{
+    text-shadow:#ff0000 2px 2px 2px,#ff0000 -2px 2px 2px,#ff0000 -2px -2px 2px,#ff0000 2px -2px 2px; 
+}
+
+
+
+/* Tableaux */
+
+table {
+    background-color: #bbb;
+    color: black;
+    border: 0px solid #999;
+    border-radius: 5px;
+    border-spacing: 0px;
+    margin: 0px 0px 10px;
+    overflow: hidden;
+}
+
+td, th {
+    color: black;
+    border: 0px solid #777;
+    padding: 0.3em 2em;
+}
+
+th {
+    background-color: #aaa
+}
+
+tr+tr td  {
+border-top: 1px dotted #888;
+}
+tr:nth-child(even) td {
+    background-color: #c0c0c0;
+}
+tr:hover td {
+    background-color: #cca;
+}
+
+
+
+th.header { 
+    cursor: pointer; 
+} 
+
+th.header:hover { 
+   background-color: #cba;
+} 
+
+
+th.headerSortDown:after { 
+    content: 'A-Z';
+    float: right;
+    font-size: 50%;
+    background-color: #ca6; 
+} 
+
+th.headerSortUp:after { 
+    content: 'Z-A';
+    float: right;
+    font-size: 50%;
+    background-color: #ca6; 
+} 
+
+
+
+.histo {
+    background-color: #777;
+    float:left;
+    margin-right: 0.5em;
+}
+.histo:after {
+  content: ".";
+  color: transparent;
+}
+
+td.progression {
+text-align: right;
+}
+
+td.progression img {
+float: left;
+}
+
