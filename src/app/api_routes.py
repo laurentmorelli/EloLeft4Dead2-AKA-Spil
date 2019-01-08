@@ -7,6 +7,12 @@ from app.bem import joueur
 from app.bem import methode_de_calcul
 from mongoengine import ValidationError, NotUniqueError
 
+import logging
+from logging.config import fileConfig
+fileConfig('/src/app/logging.ini')
+logger = logging.getLogger()
+
+from app.utils import simple_time_tracker
 
 api = Blueprint('api', __name__)
 
@@ -28,7 +34,9 @@ def response(status_code, data):
 # ----------
 # Get matchs information
 # ----------
+
 @api.route('/api/v1/matchs', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def matchs_information():
     """ Get matchs information"""
     try:
@@ -55,7 +63,7 @@ def matchs_information():
 
         return response(200, {'data' : {'count': count, 'last_import_date': lastmatch.import_date, 'matchs': matchs}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -63,6 +71,7 @@ def matchs_information():
 # Get specific matchs information
 # ----------
 @api.route('/api/v1/matchs/<string:match_id>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def match_information(match_id):
     """ Get matchs information"""
     try:
@@ -71,7 +80,7 @@ def match_information(match_id):
             return response(404, {'error': 'Invalid request : no match found with provided _id'})
         return response(201, {'data': currentmatch})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -79,6 +88,7 @@ def match_information(match_id):
 # Add match
 # ----------
 @api.route('/api/v1/matchs', methods=['POST'])
+@simple_time_tracker.simple_time_tracker()
 def add_match():
     """ Add match"""
     try:
@@ -108,7 +118,7 @@ def add_match():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -116,13 +126,14 @@ def add_match():
 # Delete all matchs
 # ----------
 @api.route('/api/v1/matchs', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_matchs():
     """ Delete all matchs"""
     try:
         match.Match.objects.delete()
         return response(200, {'data' : {'message': 'All matchs have been successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -130,6 +141,7 @@ def delete_matchs():
 # ----------
 
 @api.route('/api/v1/matchs/<string:match_id>', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_match(match_id):
     """Delete a match"""
     try:
@@ -140,7 +152,7 @@ def delete_match(match_id):
         todelete_match.delete()
         return response(200, {'data': {'message': 'match successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -151,7 +163,10 @@ def delete_match(match_id):
 # ----------
 # Get joueurs information
 # ----------
+
+
 @api.route('/api/v1/joueurs', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def joueurs_information():
     """ Get joueurs information"""
     try:
@@ -163,13 +178,14 @@ def joueurs_information():
         lastjoueur = joueur.Joueur.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastjoueur.import_date, 'joueurs': joueurs}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
 # Get specific joueurs information
 # ----------
 @api.route('/api/v1/joueurs/<string:joueur_id>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def joueur_information(joueur_id):
     """ Get joueurs information"""
     try:
@@ -178,7 +194,7 @@ def joueur_information(joueur_id):
             return response(404, {'error': 'Invalid request : no joueur found with provided _id'})
         return response(201, {'data': currentjoueur})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -186,6 +202,7 @@ def joueur_information(joueur_id):
 # Add joueur
 # ----------
 @api.route('/api/v1/joueurs', methods=['POST'])
+@simple_time_tracker.simple_time_tracker()
 def add_joueur():
     """ Add joueur"""
     try:
@@ -205,7 +222,7 @@ def add_joueur():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -213,13 +230,14 @@ def add_joueur():
 # Delete all joueurs
 # ----------
 @api.route('/api/v1/joueurs', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_joueurs():
     """ Delete all joueurs"""
     try:
         joueur.Joueur.objects.delete()
         return response(200, {'data' : {'message': 'All joueurs have been successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -227,6 +245,7 @@ def delete_joueurs():
 # ----------
 
 @api.route('/api/v1/joueurs/<string:joueur_id>', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_joueur(joueur_id):
     """Delete a joueur"""
     try:
@@ -237,7 +256,7 @@ def delete_joueur(joueur_id):
         todelete_joueur.delete()
         return response(200, {'data': {'message': 'joueur successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # -------
@@ -248,6 +267,7 @@ def delete_joueur(joueur_id):
 # Get calculs information
 # ----------
 @api.route('/api/v1/calculs', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def calculs_information():
     """ Get calculs information"""
     try:
@@ -257,13 +277,14 @@ def calculs_information():
         lastcalcul = calcul.Calcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastcalcul.import_date}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
 # Get specific calculs information
 # ----------
 @api.route('/api/v1/calculs/<string:calcul_id>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def calcul_information(calcul_id):
     """ Get calculs information"""
     try:
@@ -272,7 +293,7 @@ def calcul_information(calcul_id):
             return response(404, {'error': 'Invalid request : no calcul found with provided _id'})
         return response(201, {'data': currentcalcul})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -280,6 +301,7 @@ def calcul_information(calcul_id):
 # Add calcul
 # ----------
 @api.route('/api/v1/calculs', methods=['POST'])
+@simple_time_tracker.simple_time_tracker()
 def add_calcul():
     """ Add calcul"""
     try:
@@ -299,7 +321,7 @@ def add_calcul():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -307,13 +329,14 @@ def add_calcul():
 # Delete all calculs
 # ----------
 @api.route('/api/v1/calculs', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_calculs():
     """ Delete all calculs"""
     try:
         calcul.Calcul.objects.delete()
         return response(200, {'data' : {'message': 'All calculs have been successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -321,6 +344,7 @@ def delete_calculs():
 # ----------
 
 @api.route('/api/v1/calculs/<string:calcul_id>', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_calcul(calcul_id):
     """Delete a calcul"""
     try:
@@ -331,7 +355,7 @@ def delete_calcul(calcul_id):
         todelete_calcul.delete()
         return response(200, {'data': {'message': 'calcul successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -344,6 +368,7 @@ def delete_calcul(calcul_id):
 # Get methode_de_calculs information
 # ----------
 @api.route('/api/v1/methode_de_calculs', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def methode_de_calculs_information():
     """ Get methode_de_calculs information"""
     try:
@@ -353,13 +378,14 @@ def methode_de_calculs_information():
         lastmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data' : {'count': count, 'last_import_date': lastmethode_de_calcul.import_date}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
 # Get specific methode_de_calculs information
 # ----------
 @api.route('/api/v1/methode_de_calculs/<string:methode_de_calcul_id>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
 def methode_de_calcul_information(methode_de_calcul_id):
     """ Get methode_de_calculs information"""
     try:
@@ -368,7 +394,7 @@ def methode_de_calcul_information(methode_de_calcul_id):
             return response(404, {'error': 'Invalid request : no methode_de_calcul found with provided _id'})
         return response(201, {'data': currentmethode_de_calcul})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -376,6 +402,7 @@ def methode_de_calcul_information(methode_de_calcul_id):
 # Add methode_de_calcul
 # ----------
 @api.route('/api/v1/methode_de_calculs', methods=['POST'])
+@simple_time_tracker.simple_time_tracker()
 def add_methode_de_calcul():
     """ Add methode_de_calcul"""
     try:
@@ -391,7 +418,7 @@ def add_methode_de_calcul():
     except ValidationError:
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 
@@ -399,13 +426,14 @@ def add_methode_de_calcul():
 # Delete all methode_de_calculs
 # ----------
 @api.route('/api/v1/methode_de_calculs', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_methode_de_calculs():
     """ Delete all methode_de_calculs"""
     try:
         methode_de_calcul.MethodeDeCalcul.objects.delete()
         return response(200, {'data' : {'message': 'All methode_de_calculs have been successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
@@ -413,6 +441,7 @@ def delete_methode_de_calculs():
 # ----------
 
 @api.route('/api/v1/methode_de_calculs/<string:methode_de_calcul_id>', methods=['DELETE'])
+@simple_time_tracker.simple_time_tracker()
 def delete_methode_de_calcul(methode_de_calcul_id):
     """Delete a methode_de_calcul"""
     try:
@@ -423,7 +452,7 @@ def delete_methode_de_calcul(methode_de_calcul_id):
         todelete_methode_de_calcul.delete()
         return response(200, {'data': {'message': 'methode_de_calcul successfully deleted'}})
     except Exception as exception:
-        print(exception)
+        logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
 # ----------
