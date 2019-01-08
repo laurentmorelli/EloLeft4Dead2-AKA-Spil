@@ -8,3 +8,4 @@ COPY ./src/tests /src/tests
 
 # Install nose to run tests
 RUN pip install nose==1.3.7
+RUN pip install coverage==4.5.2
