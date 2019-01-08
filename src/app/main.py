@@ -7,7 +7,6 @@ import os
 db = MongoEngine()
 
 from app.api_routes import api
-from app.app_routes import app_bp
 
 def create_app():
     """ Create and return a Flask app with right config depending on the environment"""

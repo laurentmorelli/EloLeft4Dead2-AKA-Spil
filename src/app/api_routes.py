@@ -35,11 +35,29 @@ def matchs_information():
         count = match.Match.objects.count()
         if count == 0:
             return response(200, {'data' : {'count': count}})
+
+        matchs = [{'id' : x._id,
+                    'team1_player1' : x.team1_player1,
+                    'team1_player2' : x.team1_player2,
+                    'team1_player3' : x.team1_player3,
+                    'team1_player4' : x.team1_player4,
+                    'team2_player1' : x.team2_player1,
+                    'team2_player2' : x.team2_player2,
+                    'team2_player3' : x.team2_player3,
+                    'team2_player4' : x.team2_player4,
+                    'score_team1' : x.score_team1,
+                    'score_team2' : x.score_team2,
+                    'date' : x.date,
+                    'map' : x.map,
+                    'game_type' : x.game_type} for x in match.Match.objects().order_by('-_id')]
+
         lastmatch = match.Match.objects.only('import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data' : {'count': count, 'last_import_date': lastmatch.import_date}})
+
+        return response(200, {'data' : {'count': count, 'last_import_date': lastmatch.import_date, 'matchs': matchs}})
     except Exception as exception:
         print(exception)
         abort(500, {'error': 'Internal error'})
+
 
 # ----------
 # Get specific matchs information
@@ -140,8 +158,10 @@ def joueurs_information():
         count = joueur.Joueur.objects.count()
         if count == 0:
             return response(200, {'data' : {'count': count}})
+
+        joueurs = [{'id' : x._id, 'pseudo' : x.pseudo, 'bot' : x.bot} for x in joueur.Joueur.objects()]
         lastjoueur = joueur.Joueur.objects.only('import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data' : {'count': count, 'last_import_date': lastjoueur.import_date}})
+        return response(200, {'data' : {'count': count, 'last_import_date': lastjoueur.import_date, 'joueurs': joueurs}})
     except Exception as exception:
         print(exception)
         abort(500, {'error': 'Internal error'})

@@ -14,6 +14,11 @@ COPY ./docker/conf/nginx.conf /etc/nginx/conf.d/
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
+#for the log sake
+RUN mkdir /var/log/EloLeft4Dead2-AKA-Spil/
+RUN chmod 777 -R /var/log/EloLeft4Dead2-AKA-Spil/
+
+
 # Copy src files
 #API
 COPY ./src/app /src/app

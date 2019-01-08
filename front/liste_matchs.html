@@ -12,41 +12,103 @@
             $(document).ready(function() {$('#menu').load('menu.html');});
         </script>
             <h1> L'historique des combats : </h1>
-            <table>
-                <!--
-            <?php 
-               include('fonctions.php');
-               $objet_joueurs = get_joueurs();
-               $array_joueurs = array();
-               while ($row = mysqli_fetch_array($objet_joueurs))
-               {
-                    $array_joueurs[$row['id']]=$row['pseudo'];
-               }
-               $objet_matchs = get_all_matchs();// les matchs de ouf ! ! !             
-               while ($row = mysqli_fetch_array($objet_matchs))
-               {
-                    echo "<tr>" ;
-                    echo "<td>".$row[0]."</td>";
-                    echo "<td>".$array_joueurs[$row[1]];
-                    if ($row[2]>2) { echo ",   ".$array_joueurs[$row[2]]; }
-                    if ($row[3]>2) { echo ",   ".$array_joueurs[$row[3]]; }
-                    if ($row[4]>2) { echo ",   ".$array_joueurs[$row[4]]; }
-                    echo "</td>";                                                    
-                    if ($row[9]>$row[10])
-                      echo "<td><strong>".$row[9]."</strong>&nbsp-&nbsp;".$row[10]."</td>";
-                    else
-                      echo "<td>".$row[9]."&nbsp-&nbsp;<strong>".$row[10]."</strong></td>";
-                    echo "<td>".$array_joueurs[$row[5]];                  
-                    if ($row[6]>2) { echo ",   ".$array_joueurs[$row[6]]; }
-                    if ($row[7]>2) { echo ",   ".$array_joueurs[$row[7]]; }
-                    if ($row[8]>2) { echo ",   ".$array_joueurs[$row[8]]; }
-                    echo "</td>";
-                    echo "<td>".$row[11]."</td>";
-                    echo "<td>".$row[12]."</td>";
-                    //echo "<td>".$row[13]."</td>";
-                    echo "</tr>" ;
-                }
-            ?>-->
+            <table id="tablematch">
+
             </table>
+
+            <script>
+                //basically we retrieve all joueurs, all matchs, and then we do some crazy joins
+                
+                $(document).ready(function() {
+                    var joueursresponse = {};
+                    var matchsresponse;
+                    $.ajax({
+                        url: "/api/v1/joueurs"
+                    }).then(function(data) {
+                        if (data.data.count > 0)
+                        {
+                            //ok we got the players, let's turn it to a dict
+                            data.data.joueurs.forEach(function(item){
+                                var joueur = {};
+                                joueur['pseudo'] = item.pseudo;
+                                joueur['bot'] = item.bot;
+                                joueursresponse[item.id] = joueur;
+                                }
+                            );
+                        }
+                    }).then(function(){
+                        $.ajax({
+                        url: "/api/v1/matchs"
+                            }).then(function(data) {
+                                if (data.data.count > 0)
+                                {
+                                    var htmlscript = '';
+                                    //let's build our table
+                                    data.data.matchs.forEach(function(item){
+                                    htmlscript += '<tr>';
+                                    htmlscript += '<td>'+item.id+'</td>';
+                                    // team 1
+                                    htmlscript += '<td>'+joueursresponse[item.team1_player1]['pseudo']+'</td>';
+                                    if (joueursresponse[item.team1_player2]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team1_player2]['pseudo']+'</td>';   
+                                    }
+                                    if (joueursresponse[item.team1_player3]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team1_player3]['pseudo']+'</td>';   
+                                    }
+                                    if (joueursresponse[item.team1_player4]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team1_player4]['pseudo']+'</td>';   
+                                    }
+                                    //the scores !!!
+                                    if (item.score_team1 > item.score_team2){
+                                        htmlscript += '<td><strong>'+item.score_team1+"</strong>&nbsp-&nbsp;"+ item.score_team2+ '</td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+item.score_team1+"&nbsp-&nbsp;<strong>"+ item.score_team2+ '</strong></td>';   
+                                    }
+                                    //team 2
+                                    htmlscript += '<td>'+joueursresponse[item.team2_player1]['pseudo']+'</td>';
+                                    if (joueursresponse[item.team2_player2]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team2_player2]['pseudo']+'</td>';   
+                                    }
+                                    if (joueursresponse[item.team2_player3]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team2_player3]['pseudo']+'</td>';   
+                                    }
+                                    if (joueursresponse[item.team2_player4]['bot']){
+                                        htmlscript += '<td></td>';   
+                                    }
+                                    else{
+                                        htmlscript += '<td>'+joueursresponse[item.team2_player4]['pseudo']+'</td>';   
+                                    }
+                                    //global info
+                                    htmlscript += '<td>'+item.date+'</td>';
+                                    htmlscript += '<td>'+item.map+'</td>';
+                                    
+                                    htmlscript += '</tr>';
+
+                                    });
+
+                                }
+                                
+                                $('#tablematch').append(htmlscript);
+                        });
+                    });                    
+                });
+                
+                </script>
     </body>
 </html>
