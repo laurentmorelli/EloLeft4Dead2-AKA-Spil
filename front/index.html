@@ -175,18 +175,19 @@
         });
 
     </script>
-
+            <!--
     <h2>La m&eacute;thode : </h2>
     <form method='GET' action='index.php'>
         <select name="methode" onchange="this.options[this.selectedIndex].value && (window.location = window.location.pathname + '?methode=' + this.options[this.selectedIndex].value);">
-            <!--
+
                     <option <?php if(isset($_GET['methode']) and $_GET['methode'] == '0'){echo("selected");}?> value="0">Compte tous les matchs</option>
                     <option <?php if(isset($_GET['methode']) and $_GET['methode'] == '1'){echo("selected");}?> value="1">Compte les 20 derniers matchs</option>
                     <option <?php if(isset($_GET['methode']) == false or $_GET['methode'] == '2'){echo("selected");}?> value="2">Poids d&eacute;croissant en fonction du temps</option>
                     <option <?php if(isset($_GET['methode']) and $_GET['methode'] == '3'){echo("selected");}?> value="3">Poids al&eacute;atoire (wait... what?)</option>    
-                    -->
+                
         </select>
     </form>
+        -->
 
 </body>
 
