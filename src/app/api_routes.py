@@ -366,6 +366,44 @@ def calcul_information_by_joueur(id_joueur):
 
 
 # ----------
+# Get last elo by methode
+# ----------
+@api.route('/api/v1/last_calculs_by_method/<string:id_methode>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def last_calculs_by_method(id_methode):
+    """ Get calculs information"""
+    try:
+        #let's get the last id match
+        last_id_match = match.Match.objects().order_by('-_id').limit(1).first()._id
+        calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_match': x.id_match, 'id_joueur': x.id_joueur}
+                   for x in calcul.Calcul.objects(id_match = last_id_match)]
+        if len(calculs) == 0:
+            return response(404, {'error': 'Invalid request : no calcul found with provided id_joueur'})
+        return response(200, {'data': {'count': len(calculs), 'calculs': calculs}})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+# ----------
+# Get all elo by methode
+# ----------
+@api.route('/api/v1/all_calculs_by_method/<string:id_methode>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def all_calculs_by_method(id_methode):
+    """ Get calculs information"""
+    try:
+        #let's get the last id match
+        calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_match': x.id_match, 'id_joueur': x.id_joueur}
+                   for x in calcul.Calcul.objects().order_by('+id_match')]
+        if len(calculs) == 0:
+            return response(404, {'error': 'Invalid request : no calcul found with provided id_joueur'})
+        return response(200, {'data': {'count': len(calculs), 'calculs': calculs}})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+
+# ----------
 # Add calcul
 # ----------
 @api.route('/api/v1/calculs', methods=['POST'])
