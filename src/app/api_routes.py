@@ -1,3 +1,4 @@
+from app.utils import simple_time_tracker
 """ Api routes"""
 from flask import Blueprint, jsonify, request, abort, make_response
 import app.bem
@@ -6,26 +7,27 @@ from app.bem import calcul
 from app.bem import joueur
 from app.bem import methode_de_calcul
 from mongoengine import ValidationError, NotUniqueError
+from mongoengine.queryset.visitor import Q
 
 import logging
 from logging.config import fileConfig
 fileConfig('/src/app/logging.ini')
 logger = logging.getLogger()
 
-from app.utils import simple_time_tracker
 
 api = Blueprint('api', __name__)
 
-#---------
+# ---------
 # Return JSON helper
-#---------
+# ---------
+
+
 def response(status_code, data):
     """ JSON Response helper"""
     return make_response(jsonify(data), status_code)
 
 
-
-#####GENERAL items
+# GENERAL items
 
 # -------
 # Match REST
@@ -42,26 +44,63 @@ def matchs_information():
     try:
         count = match.Match.objects.count()
         if count == 0:
-            return response(200, {'data' : {'count': count}})
+            return response(200, {'data': {'count': count}})
 
-        matchs = [{'id' : x._id,
-                    'team1_player1' : x.team1_player1,
-                    'team1_player2' : x.team1_player2,
-                    'team1_player3' : x.team1_player3,
-                    'team1_player4' : x.team1_player4,
-                    'team2_player1' : x.team2_player1,
-                    'team2_player2' : x.team2_player2,
-                    'team2_player3' : x.team2_player3,
-                    'team2_player4' : x.team2_player4,
-                    'score_team1' : x.score_team1,
-                    'score_team2' : x.score_team2,
-                    'date' : x.date,
-                    'map' : x.map,
-                    'game_type' : x.game_type} for x in match.Match.objects().order_by('-_id')]
+        matchs = [{'id': x._id,
+                   'team1_player1': x.team1_player1,
+                   'team1_player2': x.team1_player2,
+                   'team1_player3': x.team1_player3,
+                   'team1_player4': x.team1_player4,
+                   'team2_player1': x.team2_player1,
+                   'team2_player2': x.team2_player2,
+                   'team2_player3': x.team2_player3,
+                   'team2_player4': x.team2_player4,
+                   'score_team1': x.score_team1,
+                   'score_team2': x.score_team2,
+                   'date': x.date,
+                   'map': x.map,
+                   'game_type': x.game_type} for x in match.Match.objects().order_by('-_id')]
 
-        lastmatch = match.Match.objects.only('import_date').order_by("-import_date").limit(-1).first()
+        lastmatch = match.Match.objects.only(
+            'import_date').order_by("-import_date").limit(-1).first()
 
-        return response(200, {'data' : {'count': count, 'last_import_date': lastmatch.import_date, 'matchs': matchs}})
+        return response(200, {'data': {'count': count, 'last_import_date': lastmatch.import_date, 'matchs': matchs}})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+
+@api.route('/api/v1/matchs_by_joueur/<string:joueur_id>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def matchs_information_by_joueur(joueur_id):
+    """ Get matchs information"""
+    try:
+        matchs = [{'id': x._id,
+                   'team1_player1': x.team1_player1,
+                   'team1_player2': x.team1_player2,
+                   'team1_player3': x.team1_player3,
+                   'team1_player4': x.team1_player4,
+                   'team2_player1': x.team2_player1,
+                   'team2_player2': x.team2_player2,
+                   'team2_player3': x.team2_player3,
+                   'team2_player4': x.team2_player4,
+                   'score_team1': x.score_team1,
+                   'score_team2': x.score_team2,
+                   'date': x.date,
+                   'map': x.map,
+                   'game_type': x.game_type} for x in match.Match.objects(Q(team1_player1=joueur_id) |
+                                                                          Q(team1_player2=joueur_id) | 
+                                                                          Q(team1_player3=joueur_id) | 
+                                                                          Q(team1_player4=joueur_id) | 
+                                                                          Q(team2_player1=joueur_id) | 
+                                                                          Q(team2_player2=joueur_id) | 
+                                                                          Q(team2_player3=joueur_id) | 
+                                                                          Q(team2_player4=joueur_id)).order_by('-_id')]
+
+        lastmatch = match.Match.objects.only(
+            'import_date').order_by("-import_date").limit(-1).first()
+
+        return response(200, {'data': {'count': len(matchs), 'last_import_date': lastmatch.import_date, 'matchs': matchs}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -105,7 +144,7 @@ def add_match():
             score_team1=request.json['score_team1'],
             score_team2=request.json['score_team2'],
             date=request.json['date'],
-            #date=datetime.strptime(request.json['date'],"%d/%m/%Y"),
+            # date=datetime.strptime(request.json['date'],"%d/%m/%Y"),
             map=request.json['map'],
             game_type=request.json['game_type']
         )
@@ -131,7 +170,7 @@ def delete_matchs():
     """ Delete all matchs"""
     try:
         match.Match.objects.delete()
-        return response(200, {'data' : {'message': 'All matchs have been successfully deleted'}})
+        return response(200, {'data': {'message': 'All matchs have been successfully deleted'}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -139,6 +178,7 @@ def delete_matchs():
 # ----------
 # Delete a match
 # ----------
+
 
 @api.route('/api/v1/matchs/<string:match_id>', methods=['DELETE'])
 @simple_time_tracker.simple_time_tracker()
@@ -172,11 +212,13 @@ def joueurs_information():
     try:
         count = joueur.Joueur.objects.count()
         if count == 0:
-            return response(200, {'data' : {'count': count}})
+            return response(200, {'data': {'count': count}})
 
-        joueurs = [{'id' : x._id, 'pseudo' : x.pseudo, 'bot' : x.bot} for x in joueur.Joueur.objects()]
-        lastjoueur = joueur.Joueur.objects.only('import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data' : {'count': count, 'last_import_date': lastjoueur.import_date, 'joueurs': joueurs}})
+        joueurs = [{'id': x._id, 'pseudo': x.pseudo, 'bot': x.bot}
+                   for x in joueur.Joueur.objects()]
+        lastjoueur = joueur.Joueur.objects.only(
+            'import_date').order_by("-import_date").limit(-1).first()
+        return response(200, {'data': {'count': count, 'last_import_date': lastjoueur.import_date, 'joueurs': joueurs}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -184,6 +226,8 @@ def joueurs_information():
 # ----------
 # Get specific joueurs information
 # ----------
+
+
 @api.route('/api/v1/joueurs/<string:joueur_id>', methods=['GET'])
 @simple_time_tracker.simple_time_tracker()
 def joueur_information(joueur_id):
@@ -235,7 +279,7 @@ def delete_joueurs():
     """ Delete all joueurs"""
     try:
         joueur.Joueur.objects.delete()
-        return response(200, {'data' : {'message': 'All joueurs have been successfully deleted'}})
+        return response(200, {'data': {'message': 'All joueurs have been successfully deleted'}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -243,6 +287,7 @@ def delete_joueurs():
 # ----------
 # Delete a joueur
 # ----------
+
 
 @api.route('/api/v1/joueurs/<string:joueur_id>', methods=['DELETE'])
 @simple_time_tracker.simple_time_tracker()
@@ -266,6 +311,8 @@ def delete_joueur(joueur_id):
 # ----------
 # Get calculs information
 # ----------
+
+
 @api.route('/api/v1/calculs', methods=['GET'])
 @simple_time_tracker.simple_time_tracker()
 def calculs_information():
@@ -273,9 +320,10 @@ def calculs_information():
     try:
         count = calcul.Calcul.objects.count()
         if count == 0:
-            return response(200, {'data' : {'count': count}})
-        lastcalcul = calcul.Calcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data' : {'count': count, 'last_import_date': lastcalcul.import_date}})
+            return response(200, {'data': {'count': count}})
+        lastcalcul = calcul.Calcul.objects.only(
+            'import_date').order_by("-import_date").limit(-1).first()
+        return response(200, {'data': {'count': count, 'last_import_date': lastcalcul.import_date}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -283,6 +331,8 @@ def calculs_information():
 # ----------
 # Get specific calculs information
 # ----------
+
+
 @api.route('/api/v1/calculs/<string:calcul_id>', methods=['GET'])
 @simple_time_tracker.simple_time_tracker()
 def calcul_information(calcul_id):
@@ -292,6 +342,24 @@ def calcul_information(calcul_id):
         if not currentcalcul:
             return response(404, {'error': 'Invalid request : no calcul found with provided _id'})
         return response(201, {'data': currentcalcul})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+
+# ----------
+# Get calculs by user
+# ----------
+@api.route('/api/v1/calculs_by_user/<string:id_joueur>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def calcul_information_by_joueur(id_joueur):
+    """ Get calculs information"""
+    try:
+        calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_match': x.id_match}
+                   for x in calcul.Calcul.objects(id_joueur=id_joueur).order_by('-import_date')]
+        if len(calculs) == 0:
+            return response(404, {'error': 'Invalid request : no calcul found with provided id_joueur'})
+        return response(200, {'data': {'count': len(calculs), 'calculs': calculs}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -334,7 +402,7 @@ def delete_calculs():
     """ Delete all calculs"""
     try:
         calcul.Calcul.objects.delete()
-        return response(200, {'data' : {'message': 'All calculs have been successfully deleted'}})
+        return response(200, {'data': {'message': 'All calculs have been successfully deleted'}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -342,6 +410,7 @@ def delete_calculs():
 # ----------
 # Delete a calcul
 # ----------
+
 
 @api.route('/api/v1/calculs/<string:calcul_id>', methods=['DELETE'])
 @simple_time_tracker.simple_time_tracker()
@@ -374,9 +443,10 @@ def methode_de_calculs_information():
     try:
         count = methode_de_calcul.MethodeDeCalcul.objects.count()
         if count == 0:
-            return response(200, {'data' : {'count': count}})
-        lastmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects.only('import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data' : {'count': count, 'last_import_date': lastmethode_de_calcul.import_date}})
+            return response(200, {'data': {'count': count}})
+        lastmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects.only(
+            'import_date').order_by("-import_date").limit(-1).first()
+        return response(200, {'data': {'count': count, 'last_import_date': lastmethode_de_calcul.import_date}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -384,12 +454,15 @@ def methode_de_calculs_information():
 # ----------
 # Get specific methode_de_calculs information
 # ----------
+
+
 @api.route('/api/v1/methode_de_calculs/<string:methode_de_calcul_id>', methods=['GET'])
 @simple_time_tracker.simple_time_tracker()
 def methode_de_calcul_information(methode_de_calcul_id):
     """ Get methode_de_calculs information"""
     try:
-        currentmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects(_id=methode_de_calcul_id)
+        currentmethode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects(
+            _id=methode_de_calcul_id)
         if not currentmethode_de_calcul:
             return response(404, {'error': 'Invalid request : no methode_de_calcul found with provided _id'})
         return response(201, {'data': currentmethode_de_calcul})
@@ -431,7 +504,7 @@ def delete_methode_de_calculs():
     """ Delete all methode_de_calculs"""
     try:
         methode_de_calcul.MethodeDeCalcul.objects.delete()
-        return response(200, {'data' : {'message': 'All methode_de_calculs have been successfully deleted'}})
+        return response(200, {'data': {'message': 'All methode_de_calculs have been successfully deleted'}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
@@ -440,12 +513,14 @@ def delete_methode_de_calculs():
 # Delete a methode_de_calcul
 # ----------
 
+
 @api.route('/api/v1/methode_de_calculs/<string:methode_de_calcul_id>', methods=['DELETE'])
 @simple_time_tracker.simple_time_tracker()
 def delete_methode_de_calcul(methode_de_calcul_id):
     """Delete a methode_de_calcul"""
     try:
-        todelete_methode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects(_id=methode_de_calcul_id)
+        todelete_methode_de_calcul = methode_de_calcul.MethodeDeCalcul.objects(
+            _id=methode_de_calcul_id)
         if not todelete_methode_de_calcul:
             return response(404, {'error': 'Invalid request : no methode_de_calcul found with provided _id'})
         # Delete methode_de_calcul
@@ -458,31 +533,39 @@ def delete_methode_de_calcul(methode_de_calcul_id):
 # ----------
 # Gateway (NOT FOUND)
 # ----------
+
+
 @api.route('/api/', defaults={'invalid_path': ''}, methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 @api.route('/<path:invalid_path>', methods=['GET', 'HEAD', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'])
 def not_found_error(invalid_path):
     """Not found"""
     abort(404, {'error': 'Url not found'})
 
-#----------
+# ----------
 # Error 400
-#----------
+# ----------
+
+
 @api.errorhandler(400)
 def invalid_400(error):
     """Handle 400 errors"""
     return response(400, error.description)
 
-#----------
+# ----------
 # Error 404
-#----------
+# ----------
+
+
 @api.errorhandler(404)
 def invalid_404(error):
     """Handle 404 errors"""
     return response(404, error.description)
 
-#----------
+# ----------
 # Error 500
-#----------
+# ----------
+
+
 @api.errorhandler(500)
 def invalid_500(error):
     """Handle 500 errors"""

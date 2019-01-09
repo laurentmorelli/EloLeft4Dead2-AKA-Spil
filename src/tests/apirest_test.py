@@ -297,6 +297,14 @@ class AppTest(unittest.TestCase):
         self.assertEquals(0, calcul_number)
         self.assertEquals('400 BAD REQUEST', response.status)
     
+    def test_get_calculByuser(self):
+        """Add a calcul then retrieve it by user"""
+        self.test_add_calcul_success()
+        response = self.client.get('/api/v1/calculs_by_user/toto', content_type='application/json')
+        # Check
+        self.assertEquals(200, response.status_code)
+        self.assertEquals(['calculs','count'], list(json.loads(response.data)['data'].keys()))
+
     def test_add_calcul_duplicate(self):
         """Add two calculs, with same id"""
         # Request 1

@@ -1,90 +1,145 @@
 <!DOCTYPE html>
 <html>
-    <head>
-    	<title>Fiche individuelle</title>
-    	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" type="text/css" href="template.css" media="all" />
-        <script type="text/javascript" src="javascript/jquery-1.10.2.min.js"></script> 
-    </head>
-    <body>
-        <div id='menu'></div>
-        <script>
-            $(document).ready(function() {$('#menu').load('menu.html');});
-        </script>
-	<h1> 
-    	<?php 
-        	echo 'Fiche du joueur ' . $joueur . ' :';        
-		?>
-	</h1>
 
-	<h2> Evolution de son elo : </h2>
-  <table id="tableelos">
-  <?php 
-      include('html_helpers.php'); 
-      $methode_id = 0;
-      $sql="select elo,date from calcul where id_joueur = '$id_joueur' and id_methode = '$methode_id' order by id_match ASC;";
-      $resultat = mysqli_query($bdd,$sql);
-      while($data = mysqli_fetch_assoc($resultat))
-      {
-        echo '<tr><td>'.$data['date'].'</td>';
-        echo '<td>'.$data['elo'].histogram_bar($data['elo']/3-333).'</td></tr>';
-      }
-      mysqli_free_result($resultat);
-  ?>
-  </table>
-    
+<head>
+    <title>Fiche individuelle</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" type="text/css" href="template.css" media="all" />
+    <script type="text/javascript" src="javascript/jquery-1.10.2.min.js"></script>
+</head>
+
+<body>
+    <div id='menu'></div>
+    <script>
+        $(document).ready(function () { $('#menu').load('menu.html'); });
+    </script>
+    <h1 id="header"></h1>
+    <script>
+        var urlParams = new URLSearchParams(window.location.search);
+        const pseudocst = 'pseudo';
+        if (urlParams.has(pseudocst)) {
+            const pseudo = urlParams.get(pseudocst);
+            $('#header').append('Fiche du joueur ' + pseudo);
+        }   
+    </script>
+
+    <h2> Evolution de son elo : </h2>
+    <table id="tableelos">
+    </table>
     <h2> Historique de ses combats : </h2>
-            <table id ="tablematchs">
-            </table>
-            <?php 
-               $objet_joueurs = get_joueurs();
-               $array_joueurs = array();
-               while ($row = mysqli_fetch_array($objet_joueurs))
-               {
-                    $array_joueurs[$row['id']]=$row['pseudo'];
-               }
-               $objet_matchs = get_all_matchs();// les matchs de ouf ! ! !             
-               while ($row = mysqli_fetch_array($objet_matchs))
-               {
-               		// teste si le joueur est dans le match
-               		$joueur_dans_match=0;
-               		for ($i = 1; $i <= 8; $i++)  
-               		{ 
-              			if ( $row[$i]==$id_joueur )
-						{$joueur_dans_match=1;
-						};
-						};
-					// si le joueur est dans le match, alors...
-					if ($joueur_dans_match==1)
-					{
-					// affiche le resultat du match               
-                    echo "<tr>" ;
-                    echo "<td>".$row[0]."</td>";
-                    echo "<td>".$array_joueurs[$row[1]];
-                    if ($row[2]>2) { echo ",   ".$array_joueurs[$row[2]]; }
-                    if ($row[3]>2) { echo ",   ".$array_joueurs[$row[3]]; }
-                    if ($row[4]>2) { echo ",   ".$array_joueurs[$row[4]]; }
-                    echo "</td>";                                                    
-                    if ($row[9]>$row[10])
-                      echo "<td><strong>".$row[9]."</strong>&nbsp-&nbsp;".$row[10]."</td>";
-                    else
-                      echo "<td>".$row[9]."&nbsp-&nbsp;<strong>".$row[10]."</strong></td>";
-                    echo "<td>".$array_joueurs[$row[5]];                  
-                    if ($row[6]>2) { echo ",   ".$array_joueurs[$row[6]]; }
-                    if ($row[7]>2) { echo ",   ".$array_joueurs[$row[7]]; }
-                    if ($row[8]>2) { echo ",   ".$array_joueurs[$row[8]]; }
-                    echo "</td>";
-                    echo "<td>".$row[11]."</td>";
-                    echo "<td>".$row[12]."</td>";
-                    //echo "<td>".$row[13]."</td>";
-                    echo "</tr>" ;
-                	
-                	}
-                }
-            ?>
-            
-            
+    <table id="tablematch">
+    </table>
+    <script>
+        $(document).ready(function () {
+            const idcst = 'id';
+            if (urlParams.has(idcst)) {
+                const id_joueur = urlParams.get(idcst);
+                $.ajax({
+                    url: "/api/v1/calculs_by_user/" + id_joueur
+                }).then(function (data) {
+                    if (data.data.count > 0) {
+                        var htmlscript = '';
+                        data.data.calculs.forEach(function (item) {
+                            htmlscript += '<tr>';
+                            htmlscript += '<td>' + item.elo + '</td>';
+                            htmlscript += '<td>' + item.import_date + '</td>';
+                            htmlscript += '</tr>';
 
-        </table>
-    </body>
+                        });
+                        $('#tableelos').append(htmlscript);
+                    }
+                });
+                var joueursresponse = {};
+                $.ajax({
+                    url: "/api/v1/joueurs"
+                }).then(function (data) {
+                    if (data.data.count > 0) {
+                        //ok we got the players, let's turn it to a dict
+                        data.data.joueurs.forEach(function (item) {
+                            var joueur = {};
+                            joueur['pseudo'] = item.pseudo;
+                            joueur['bot'] = item.bot;
+                            joueursresponse[item.id] = joueur;
+                        }
+                        );
+                    }
+                }).then(function () {
+                    $.ajax({
+                        url: "/api/v1/matchs_by_joueur/" + id_joueur
+                    }).then(function (data) {
+                        if (data.data.count > 0) {
+                            var htmlscript = '';
+                            //let's build our table
+                            data.data.matchs.forEach(function (item) {
+                                htmlscript += '<tr>';
+                                htmlscript += '<td>' + item.id + '</td>';
+                                // team 1
+                                htmlscript += '<td>' + joueursresponse[item.team1_player1]['pseudo'] + '</td>';
+                                if (joueursresponse[item.team1_player2]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team1_player2]['pseudo'] + '</td>';
+                                }
+                                if (joueursresponse[item.team1_player3]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team1_player3]['pseudo'] + '</td>';
+                                }
+                                if (joueursresponse[item.team1_player4]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team1_player4]['pseudo'] + '</td>';
+                                }
+                                //the scores !!!
+                                if (item.score_team1 > item.score_team2) {
+                                    htmlscript += '<td><strong>' + item.score_team1 + "</strong>&nbsp-&nbsp;" + item.score_team2 + '</td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + item.score_team1 + "&nbsp-&nbsp;<strong>" + item.score_team2 + '</strong></td>';
+                                }
+                                //team 2
+                                htmlscript += '<td>' + joueursresponse[item.team2_player1]['pseudo'] + '</td>';
+                                if (joueursresponse[item.team2_player2]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team2_player2]['pseudo'] + '</td>';
+                                }
+                                if (joueursresponse[item.team2_player3]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team2_player3]['pseudo'] + '</td>';
+                                }
+                                if (joueursresponse[item.team2_player4]['bot']) {
+                                    htmlscript += '<td></td>';
+                                }
+                                else {
+                                    htmlscript += '<td>' + joueursresponse[item.team2_player4]['pseudo'] + '</td>';
+                                }
+                                //global info
+                                htmlscript += '<td>' + item.date + '</td>';
+                                htmlscript += '<td>' + item.map + '</td>';
+
+                                htmlscript += '</tr>';
+
+                            });
+
+                        }
+
+                        $('#tablematch').append(htmlscript);
+                    });
+
+                });
+
+            }
+        });
+
+
+    </script>
+</body>
+
 </html>
