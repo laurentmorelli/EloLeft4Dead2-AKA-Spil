@@ -32,15 +32,15 @@ cd EloLeft4Dead2-AKA-Spil
 docker build -t spil_prod_image -f ./docker/prod-image/Dockerfile .
 docker build -t spil_test_image -f ./docker/test-image/Dockerfile .
 ```
-- Start container : 
+- Start container :
 ```
 docker-compose -f docker-compose.dev.yml up -d
 ```
-- Open your browser : `localhost:8084` and start using endpoints
+- You can now access [web front-end](http://localhost:8084/front/index.html) and start using endpoints.
 
 If you need to go inside container : `docker-compose -f docker-compose.dev.yml exec spil bash`
 
-To restart dev docker : 
+To restart dev docker :
 ```
 docker stop spil && docker-compose -f docker-compose.dev.yml up -d && docker exec -it spil bash
 ```

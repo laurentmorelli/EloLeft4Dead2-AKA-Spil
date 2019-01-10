@@ -1,25 +1,3 @@
-<?php 
-
-    include('fonctions.php');
-
-    $bdd = connect_bdd();
-    $resultat = mysqli_query($bdd,"select id,pseudo from joueurs where bot=0 order by pseudo;"); 
-    $liste_joueur_alpha = array();
-    $liste_joueurs_options = "<option value='bot'> bot</option>";
-    while($data = mysqli_fetch_assoc($resultat))
-    {
-        $liste_joueurs_options .= "<option value='".$data['id']."'>".$data['pseudo']."</option>";
-        array_push( $liste_joueur_alpha, $data['id'] );
-    } 
-    mysqli_free_result($resultat);
-    $methode_id = 2;
-	if (isset($_GET['methode']))
-	{
-		$methode_id = $_GET['methode'];
-	}
-    $elos = get_elos($methode_id);
-?> 
-
 <!DOCTYPE html>
 <html>
     <head>
@@ -105,40 +83,38 @@
 
     /*   ALGO D'EQUILIBRAGE DES EQUIPES     */
     /*
-
         notations :
 
         Soit N le nombre de joueurs humains.
-        Soit X et Y le nombre de bots dans les �quipes 1 et 2.
+        Soit X et Y le nombre de bots dans les équipes 1 et 2.
         Remarque : Y = 8-N-X
 
         Soit E la somme des elos des 8 joueurs, dont (X+Y) bots.
         Soit e1 l'elo de l'�quipe 1 : X botX, plus (4-X) joueurs humains.
 
-        On cherche donc � minimiser la distance entre e1 et l'�quilibre parfait : E/2
+        On cherche donc � minimiser la distance entre e1 et l'équilibre parfait : E/2
 
 
 
-        * algo1 : on �quilibre d'abord le nombre d'humains par �quipe (peut etre pas le meilleur choix) 
+        * algo1 : on équilibre d'abord le nombre d'humains par équipe (peut etre pas le meilleur choix)
 
         avantage : on retrouve facilement quels botX et botY vont jouer (en choisissant X >= Y) :
         X = 4-round(N/2)
 
 
-        X �tant fixe, les possibiit�s se limitent � piocher 4-X humains parmis N
-        et la somme e1 des elo doit etre au plus proche de la constante E/2  
+        X étant fixe, les possibiités se limitent à piocher 4-X humains parmis N
+        et la somme e1 des elo doit etre au plus proche de la constante E/2
 
-        On peut essayer toutes les possibilit�s... 
-        methode bourrine sans eliminer les doublons pour 8 humains : 2^8 = 256 quadruplets 
+        On peut essayer toutes les possibilités...
+        methode bourrine sans eliminer les doublons pour 8 humains : 2^8 = 256 quadruplets
 
 
 
-        * algo2 : pas de contrainte 
+        * algo2 : pas de contrainte
 
-        cons�quence : on ne connait pas les bots � l'avance, et donc on ne connait pas E
+        conséquence : on ne connait pas les bots à l'avance, et donc on ne connait pas E
 
-        pas impl�ment�.
-
+        pas implémenté.
 
     */
 
@@ -277,14 +253,6 @@
           <p id=ecart2></p>
         </div>
         <form id="joueurs">
-          <?php
-            foreach ($liste_joueur_alpha as $i=>$j) {
-              echo "<label><input type='checkbox' ";
-              echo "data-id='".$j."'>"; 
-              echo get_joueur_pseudo_from_id($j)." (".round($elos[$j][0]).")";
-              echo "</input></label><br />";
-            }
-          ?>
         </form>
 
         <h2>Enregistrer le match</h2>
@@ -323,16 +291,41 @@
                     <option>The_Parish</option>
                     <option>The_Passing</option>
                     <option>The_Sacrifice</option>
-                    <option>Hard_Rain</option>          
+                    <option>Hard_Rain</option>
                 </select>
             </p>
             <p>
-                Game Type  : 
+                Game Type :
                 <select name="game_type" >
                     <option>Versus_Realisme</option>
                 </select>
             </p>
             <input type=submit value=Enregistrer />
         </form>
+        <script>
+        $(document).ready(function() {
+                $.ajax({
+                    url: "/api/v1/joueurs"
+                }).then(function(data) {
+                    if (data.data.count > 0)
+                    {
+                        var joueurs_checkbox = '';
+                        var joueurs_option = "<option value='bot'>bot</option>";
+
+                        data.data.joueurs.forEach(function(item){
+                          if (!item.bot)
+                          {
+                            joueurs_checkbox += '<label><input type="checkbox" data-id="' + item.id + '">';
+                            joueurs_checkbox += item.pseudo + '</input></label><br>';
+                            joueurs_option += "<option value='" + item.id + "'>" + item.pseudo + "</option>";
+                          }
+
+                        });
+                        $('#joueurs').append(joueurs_checkbox);
+                        $('select[name^=team]').append(joueurs_option);
+                    }
+                });
+            });
+        </script>
     </body>
 </html>
