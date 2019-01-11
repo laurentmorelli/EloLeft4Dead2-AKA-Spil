@@ -424,7 +424,6 @@ class AppTest(unittest.TestCase):
                     team2_player4='toto',
                     score_team1=10,
                     score_team2=0,
-                    date='02/03/1985',
                     map='toto',
                     game_type='toto',
                 )
@@ -453,7 +452,6 @@ class AppTest(unittest.TestCase):
                     team2_player4='toto',
                     score_team1='toto',
                     score_team2=0,
-                    date=str(datetime.datetime.now),
                     map='toto',
                     game_type='toto',
                 )
@@ -463,7 +461,7 @@ class AppTest(unittest.TestCase):
         # Check
         match_number = match.Match.objects.count()
         self.assertEquals(0, match_number)
-        self.assertEquals('400 BAD REQUEST', response.status)
+        self.assertNotEquals('201 CREATED', response.status)
     
     def test_add_match_duplicate(self):
         """Add two matchs, with same id"""

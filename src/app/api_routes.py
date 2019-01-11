@@ -8,6 +8,7 @@ from app.bem import joueur
 from app.bem import methode_de_calcul
 from mongoengine import ValidationError, NotUniqueError
 from mongoengine.queryset.visitor import Q
+import datetime
 
 import logging
 from logging.config import fileConfig
@@ -89,12 +90,12 @@ def matchs_information_by_joueur(joueur_id):
                    'date': x.date,
                    'map': x.map,
                    'game_type': x.game_type} for x in match.Match.objects(Q(team1_player1=joueur_id) |
-                                                                          Q(team1_player2=joueur_id) | 
-                                                                          Q(team1_player3=joueur_id) | 
-                                                                          Q(team1_player4=joueur_id) | 
-                                                                          Q(team2_player1=joueur_id) | 
-                                                                          Q(team2_player2=joueur_id) | 
-                                                                          Q(team2_player3=joueur_id) | 
+                                                                          Q(team1_player2=joueur_id) |
+                                                                          Q(team1_player3=joueur_id) |
+                                                                          Q(team1_player4=joueur_id) |
+                                                                          Q(team2_player1=joueur_id) |
+                                                                          Q(team2_player2=joueur_id) |
+                                                                          Q(team2_player3=joueur_id) |
                                                                           Q(team2_player4=joueur_id)).order_by('-_id')]
 
         lastmatch = match.Match.objects.only(
@@ -131,30 +132,113 @@ def match_information(match_id):
 def add_match():
     """ Add match"""
     try:
+        logger.info(str(request.json))
+        # we expect a call like
+        # {
+        #    team1_player1:'toto',
+        #    team1_player2:'toto',
+        #    team1_player3:'toto',
+        #    team1_player4:'toto',
+        #    team2_player1:'toto',
+        #    team2_player2:'toto',
+        #    team2_player3:'toto',
+        #    team2_player4:'toto',
+        #    score_team1:10,
+        #    score_team2:0,
+        #    map:'toto',
+        #    game_type:'toto'
+        # }
+
+        ## Error Management
+        errorList = []
+
+        expectedFields = ['team1_player1', 'team1_player2', 'team1_player3', 'team1_player4',
+                          'team2_player1', 'team2_player2', 'team2_player3', 'team2_player4',
+                          'score_team1', 'score_team2', 'map', 'game_type']
+        for field in expectedFields:
+            if field not in request.json:
+                errorList.append('Field ' + field + 'is missing!!! ')
+
+        # we check that the teams are correct
+        team1_player1 = request.json['team1_player1']
+        team1_player2 = request.json['team1_player2']
+        team1_player3 = request.json['team1_player3']
+        team1_player4 = request.json['team1_player4']
+        team2_player1 = request.json['team2_player1']
+        team2_player2 = request.json['team2_player2']
+        team2_player3 = request.json['team2_player3']
+        team2_player4 = request.json['team2_player4']
+
+        botTeam1 = sum([1 for x in [team1_player1, team1_player2,
+                                    team1_player3, team1_player4] if x == 'bot']) - 1
+        if botTeam1 > 2:
+                errorList.append('Team 1 is only with bots !!! ')
+        botTeam2 = sum([1 for x in [team2_player1, team2_player2,
+                                    team2_player3, team2_player4] if x == 'bot']) - 1
+        if botTeam2 > 2:
+                errorList.append('Team 2 is only with bots !!! ')
+    
+        score_team1 = int(request.json['score_team1']) if len(str(request.json['score_team1'])) > 0 else 0
+        score_team2 = int(request.json['score_team2']) if len(str(request.json['score_team2'])) > 0 else 0
+
+        if score_team1 == 0 and score_team2 ==0:
+            errorList.append('No score recorded ')
+
+        if len(errorList) >0:
+            logger.error('The following errors have been found : '+ ' / '.join(errorList))
+            return response(405, {'data': {'message': 'The following errors have been found : '+ ' / '.join(errorList)}})
+
+        ###ok the data is now expected to be correct
+
+        # do we have the id ?
+        if '_id' in request.json:
+            matchId = request.json['_id']
+        else:
+            matchId = match.Match.objects().order_by("-_id").limit(-1).first()._id + 1
+        # do we have the date ?
+        if 'date' in request.json:
+            date_match = request.json['date']
+        else:
+            date_match = datetime.datetime.now().strftime("%d/%m/%Y")
+
+        # fancy id management like 1 -> 0, 2 -> 1, 3-> 2
+        team1_player1 = str(botTeam1) if team1_player1 == 'bot' else team1_player1
+        team1_player2 = str(botTeam1) if team1_player2 == 'bot' else team1_player2
+        team1_player3 = str(botTeam1) if team1_player3 == 'bot' else team1_player3
+        team1_player4 = str(botTeam1) if team1_player4 == 'bot' else team1_player1
+        team2_player1 = str(botTeam2) if team2_player1 == 'bot' else team2_player1
+        team2_player2 = str(botTeam2) if team2_player2 == 'bot' else team2_player2
+        team2_player3 = str(botTeam2) if team2_player3 == 'bot' else team2_player3
+        team2_player4 = str(botTeam2) if team2_player4 == 'bot' else team2_player4
+
         newmatch = match.Match(
-            _id=request.json['_id'],
-            team1_player1=request.json['team1_player1'],
-            team1_player2=request.json['team1_player2'],
-            team1_player3=request.json['team1_player3'],
-            team1_player4=request.json['team1_player4'],
-            team2_player1=request.json['team2_player1'],
-            team2_player2=request.json['team2_player2'],
-            team2_player3=request.json['team2_player3'],
-            team2_player4=request.json['team2_player4'],
-            score_team1=request.json['score_team1'],
-            score_team2=request.json['score_team2'],
-            date=request.json['date'],
-            # date=datetime.strptime(request.json['date'],"%d/%m/%Y"),
+            _id=matchId,
+            team1_player1=team1_player1,
+            team1_player2=team1_player2,
+            team1_player3=team1_player3,
+            team1_player4=team1_player4,
+            team2_player1=team2_player1,
+            team2_player2=team2_player2,
+            team2_player3=team2_player3,
+            team2_player4=team2_player4,
+            score_team1=score_team1,
+            score_team2=score_team2,
+            date=date_match,
             map=request.json['map'],
             game_type=request.json['game_type']
         )
+
         output = newmatch.save()
+        logger.info(output)
         return response(201, {'data': output})
     except KeyError:
+        logger.error('Invalid request : wrong key')
         abort(400, {'error': 'Invalid request : wrong key'})
     except NotUniqueError:
+        logger.error('Invalid request : duplicate _id')
         abort(400, {'error': 'Invalid request : duplicate _id'})
-    except ValidationError:
+    except ValidationError as exception:
+        logger.error('Invalid request : wrong value ' + str(exception.to_dict()))
         abort(400, {'error': 'Invalid request : wrong value'})
     except Exception as exception:
         logger.error(exception)
@@ -373,10 +457,10 @@ def calcul_information_by_joueur(id_joueur):
 def last_calculs_by_method(id_methode):
     """ Get calculs information"""
     try:
-        #let's get the last id match
+        # let's get the last id match
         last_id_match = match.Match.objects().order_by('-_id').limit(1).first()._id
         calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_match': x.id_match, 'id_joueur': x.id_joueur}
-                   for x in calcul.Calcul.objects(id_match = last_id_match)]
+                   for x in calcul.Calcul.objects(id_match=last_id_match)]
         if len(calculs) == 0:
             return response(404, {'error': 'Invalid request : no calcul found with provided id_joueur'})
         return response(200, {'data': {'count': len(calculs), 'calculs': calculs}})
@@ -387,12 +471,14 @@ def last_calculs_by_method(id_methode):
 # ----------
 # Get all elo by methode
 # ----------
+
+
 @api.route('/api/v1/all_calculs_by_method/<string:id_methode>', methods=['GET'])
 @simple_time_tracker.simple_time_tracker()
 def all_calculs_by_method(id_methode):
     """ Get calculs information"""
     try:
-        #let's get the last id match
+        # let's get the last id match
         calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_match': x.id_match, 'id_joueur': x.id_joueur}
                    for x in calcul.Calcul.objects().order_by('+id_match')]
         if len(calculs) == 0:

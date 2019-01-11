@@ -1,112 +1,64 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Formulaire Nouveau Match</title>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-        <link rel="stylesheet" type="text/css" href="template.css" media="all" />
-        <script type="text/javascript" src="javascript/jquery-1.10.2.min.js"></script> 
-        <script>
 
+<head>
+  <title>Formulaire Nouveau Match</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <link rel="stylesheet" type="text/css" href="template.css" media="all" />
+  <script type="text/javascript" src="javascript/jquery-1.10.2.min.js"></script>
+  <script>
 
-    var PLAYERS=[ ];
-    var ELO_BOT=[ ];
+    var PLAYERS = [];
+    var ELO_BOT = [];
 
-    $(document).ready( function() {
-                $.ajax({
-                    url: "/api/v1/joueurs"
-                }).then(function(data) {
-                  if (data.data.count > 0)
-                  {
-                    var joueurs_checkbox = '';
-                    var joueurs_option = "<option value='bot'>bot</option>";
+    function get_team_elo(n) {
+      elo = 0;
+      bot_nb = 4;
+      $("select[name^=team" + n + "]").each(function () {
+        p_id = $(this).val();
+        if (p_id != "bot") {
+          elo += PLAYERS[p_id].elo;
+          --bot_nb;
+        }
+      });
 
-                    data.data.joueurs.forEach(function(item){
-                      if (!item.bot)
-                      {
-                        joueurs_checkbox += '<label><input type="checkbox" data-id="' + item.id + '">';
-                        joueurs_checkbox += item.pseudo + '</input></label><br>';
-                        joueurs_option += "<option value='" + item.id + "'>" + item.pseudo + "</option>";
-                      }
+      if (bot_nb == 4) return 0;
 
-                    });
-                    $('#joueurs').append(joueurs_checkbox);
-                    $('select[name^=team]').append(joueurs_option);
-                  }
-
-                }).then(function () {
-                  $.ajax({
-                      url: "/api/v1/last_calculs_by_method/2"
-                  }).then(function (data) {
-                    if (data.data.count > 0) {
-                        data.data.calculs.forEach(function (item) {
-                          PLAYERS.push({id: item.id_joueur, elo: item.elo});
-                        });
-                    }
-
-                    ELO_BOT=[ 0. , PLAYERS[0].elo , PLAYERS[1].elo , PLAYERS[2].elo  ];
-
-                    compare_teams(get_team_elo(1),get_team_elo(2));
-
-                    $("#joueurs input[type=checkbox]").change( split_players );
-                    $("select[name^=team]").change(function(){ compare_teams(get_team_elo(1),get_team_elo(2)); });
-                    $("input[name^=team]").keyup(function(){ compare_teams(get_team_elo(1),get_team_elo(2)); });
-                });
-              });
-    });
-
-
-   function get_team_elo(n) {
-     elo = 0;
-     bot_nb = 4;
-     $("select[name^=team"+n+"]").each( function() {
-       p_id = $(this).val();
-       if ( p_id != "bot" )
-       {
-         elo += PLAYERS[p_id].elo;
-         --bot_nb;
-       }
-     });
-
-     if (bot_nb == 4) return 0;
-
-     elo += bot_nb * ELO_BOT[bot_nb];
-     return elo;
-   }
+      elo += bot_nb * ELO_BOT[bot_nb];
+      return elo;
+    }
 
 
 
-   /* mise à jour de la vue de comparaison des équipes */
+    /* mise à jour de la vue de comparaison des équipes */
 
-   function compare_teams(elo1,elo2)
-   {
-     var delta = elo2 - elo1;
-     var coef1 = (1000 - delta)/(1000 + delta);
-     var coef2 = (1000 + delta)/(1000 - delta);
+    function compare_teams(elo1, elo2) {
+      var delta = elo2 - elo1;
+      var coef1 = (1000 - delta) / (1000 + delta);
+      var coef2 = (1000 + delta) / (1000 - delta);
 
-     var score1 = $('input[name="team1_score"]').val();
-     var score2 = $('input[name="team2_score"]').val();
-     if (score1 == "") score1=0;
-     if (score2 == "") score2=0;
+      var score1 = $('input[name="team1_score"]').val();
+      var score2 = $('input[name="team2_score"]').val();
+      if (score1 == "") score1 = 0;
+      if (score2 == "") score2 = 0;
 
-     $('input[name="team2_score"]').attr("placeholder",   Math.round(score1*coef2)   );
-     $('input[name="team1_score"]').attr("placeholder",   Math.round(score2*coef1)   );
+      $('input[name="team2_score"]').attr("placeholder", Math.round(score1 * coef2));
+      $('input[name="team1_score"]').attr("placeholder", Math.round(score2 * coef1));
 
-     $("#team1").html( Math.round(elo1) );
-     $("#team2").html( Math.round(elo2) );
+      $("#team1").html(Math.round(elo1));
+      $("#team2").html(Math.round(elo2));
 
-     if (elo1==0 || elo2==0)
-     {
+      if (elo1 == 0 || elo2 == 0) {
         $("#ecart1").html("");
         $("#ecart2").html("");
-     }
-     else
-     {
-       $("#team"+ (elo1<=elo2 ? "1" : "2")).append( "&nbsp;<small><abbr title='Cette équipe doit commencer infectée.'>(Infectés)</abbr></small>" );
-       $("#ecart1").html( "Si l'équipe 1 marque 100 points, l'équipe 2 doit en marquer " + Math.round(100*coef2) + ".");
-       $("#ecart2").html( "Si l'équipe 2 marque 100 points, l'équipe 1 doit en marquer " + Math.round(100*coef1) + ".");
+      }
+      else {
+        $("#team" + (elo1 <= elo2 ? "1" : "2")).append("&nbsp;<small><abbr title='Cette équipe doit commencer infectée.'>(Infectés)</abbr></small>");
+        $("#ecart1").html("Si l'équipe 1 marque 100 points, l'équipe 2 doit en marquer " + Math.round(100 * coef2) + ".");
+        $("#ecart2").html("Si l'équipe 2 marque 100 points, l'équipe 1 doit en marquer " + Math.round(100 * coef1) + ".");
 
-     }
-   }
+      }
+    }
 
 
 
@@ -148,21 +100,20 @@
     */
 
 
-    function split_players()
-    {
+    function split_players() {
 
       var MAX_PLAYERS = 8;
 
       /* init */
 
-      var E = 0.0; 
+      var E = 0.0;
       var players = [];
 
-      $("#joueurs input[type=checkbox]:checked").each( function() {
+      $("#joueurs input[type=checkbox]:checked").each(function () {
         var p = PLAYERS[parseInt($(this).attr("data-id"))];
-        players.push( p );
+        players.push(p);
         E += p.elo;
-      } );
+      });
 
       var X = 4 - Math.round(players.length / 2);
       var Y = MAX_PLAYERS - players.length - X;
@@ -171,12 +122,11 @@
 
 
       $("select[name^=team]").val("bot");
-      if ( players.length < 2 || players.length > MAX_PLAYERS )
-      {
-        if ( players.length > MAX_PLAYERS ) {
+      if (players.length < 2 || players.length > MAX_PLAYERS) {
+        if (players.length > MAX_PLAYERS) {
           $("#info").html("Vous avez selectionné trop de joueurs.");
         }
-        compare_teams(0,0);
+        compare_teams(0, 0);
         return;
       }
 
@@ -187,24 +137,21 @@
       var solution_distance = 10000000.;
 
       // on boucle sur les 2^N cas possibles
-      for (var p=0; p< (1<<(players.length)); ++p)
-      {
+      for (var p = 0; p < (1 << (players.length)); ++p) {
 
         var team_size = X;
-        var team_elo = X*ELO_BOT[X];
+        var team_elo = X * ELO_BOT[X];
 
-        for (var i=0; i<players.length; ++i)
-        {
+        for (var i = 0; i < players.length; ++i) {
           // les bits de p en binaire codent la présence ou non du joueur i dans l'équipe.
-          if ( p & (1<<i) ) {
+          if (p & (1 << i)) {
             ++team_size;
             team_elo += players[i].elo;
           }
         }
 
-        var distance = Math.abs(team_elo-E/2);
-        if (team_size == 4 && distance<solution_distance )
-        {
+        var distance = Math.abs(team_elo - E / 2);
+        if (team_size == 4 && distance < solution_distance) {
           solution = p;
           solution_distance = distance;
         }
@@ -217,111 +164,194 @@
       var team1_count = 0;
       var team2_count = 0;
 
-      var elo1 = X*ELO_BOT[X];
-      var elo2 = Y*ELO_BOT[Y];
+      var elo1 = X * ELO_BOT[X];
+      var elo2 = Y * ELO_BOT[Y];
 
-      for (var i=0; i<players.length; ++i)
-      {
-        if ( solution & (1<<i) )
-        {
+      for (var i = 0; i < players.length; ++i) {
+        if (solution & (1 << i)) {
           elo1 += players[i].elo;
 
           ++team1_count;
-          $("select[name=team1_player"+team1_count+"]").val(players[i].id);
+          $("select[name=team1_player" + team1_count + "]").val(players[i].id);
         }
-        else
-        {
+        else {
           elo2 += players[i].elo;
 
           ++team2_count;
-          $("select[name=team2_player"+team2_count+"]").val(players[i].id);
+          $("select[name=team2_player" + team2_count + "]").val(players[i].id);
         }
       }
 
 
-      if (solution == 0)
-      {
+      if (solution == 0) {
         // ne devrait pas arriver
-        $("#info").html( "ERREUR ! Pas de solution !" );
+        $("#info").html("ERREUR ! Pas de solution !");
       }
-      else
-      {
+      else {
         $("#info").html("");
-        compare_teams(elo1,elo2);
+        compare_teams(elo1, elo2);
       }
 
 
     }
 
 
-        </script>
-    </head>
-    <body>
-      <div id='menu'></div>
-        <script>
-            $(document).ready(function() {$('#menu').load('menu.html');});
-        </script>
+  </script>
+</head>
 
-        <h2>Equilibrer les équipes <small>(facultatif)</small></h2>
-        <div style='float:right; '>
-          <p id=info></p>
-          <p id=ecart1></p>
-          <p id=ecart2></p>
-        </div>
-        <form id="joueurs">
-        </form>
+<body>
+  <div id='menu'></div>
+  <script>
+    $(document).ready(function () { $('#menu').load('menu.html'); });
+  </script>
 
-        <h2>Enregistrer le match</h2>
-        <form method='GET' action='insert_new_match.php'>
-                <table>
-               <tbody><tr><th>Player 1</th><th>Player 2</th><th>Player 3</th><th>Player 4</th><th>Elo</th><th>Score</th></tr>
-                    <tr>
-                        <td><select name="team1_player1" ></select></td>
-                        <td><select name="team1_player2" ></select></td>
-                        <td><select name="team1_player3" ></select></td>
-                        <td><select name="team1_player4" ></select></td>
-                        <td><span id="team1"></span></td>
-                        <td><input name="team1_score" type="text" style="width:3em" placeholder="0" autocomplete="off" /></td>
-                    </tr>
-                    <tr>
-                        <td><select name="team2_player1" ></select></td>
-                        <td><select name="team2_player2" ></select></td>
-                        <td><select name="team2_player3" ></select></td>
-                        <td><select name="team2_player4" ></select></td>
-                        <td><span id="team2"></span></td>
-                        <td><input name="team2_score" type="text" style="width:3em" placeholder="0" autocomplete="off" /></td>
-                    </tr>
-                </table>
-            <p>
-                Map :
-                <select name="map" >
-                    <option>Blood_Harvest</option>
-                    <option>Cold_Stream</option>
-                    <option>Crash_Course</option>
-                    <option>Dark_Carnival</option>
-                    <option>Dead_Air</option>
-                    <option>Dead_Center</option>
-                    <option>Death_Toll</option>
-                    <option>No_Mercy</option>
-                    <option>Swamp_Fever</option>
-                    <option>The_Parish</option>
-                    <option>The_Passing</option>
-                    <option>The_Sacrifice</option>
-                    <option>Hard_Rain</option>
-                </select>
-            </p>
-            <p>
-                Game Type :
-                <select name="game_type" >
-                    <option>Versus_Realisme</option>
-                    <option>Taaank!!!_mod</option>
-                </select>
-            </p>
-            <input type=submit value=Enregistrer />
-        </form>
-        <script>
-        $(document).ready(function() {
+  <h2>Equilibrer les équipes <small>(facultatif)</small></h2>
+  <div style='float:right; '>
+    <p id=info></p>
+    <p id=ecart1></p>
+    <p id=ecart2></p>
+  </div>
+  <form id="joueurs">
+  </form>
+
+  <h2>Enregistrer le match</h2>
+  <form method='GET' id="insert_new_match" action="">
+    <table>
+      <tbody>
+        <tr>
+          <th>Player 1</th>
+          <th>Player 2</th>
+          <th>Player 3</th>
+          <th>Player 4</th>
+          <th>Elo</th>
+          <th>Score</th>
+        </tr>
+        <tr>
+          <td><select name="team1_player1"></select></td>
+          <td><select name="team1_player2"></select></td>
+          <td><select name="team1_player3"></select></td>
+          <td><select name="team1_player4"></select></td>
+          <td><span id="team1"></span></td>
+          <td><input name="team1_score" type="text" style="width:3em" placeholder="0" autocomplete="off" /></td>
+        </tr>
+        <tr>
+          <td><select name="team2_player1"></select></td>
+          <td><select name="team2_player2"></select></td>
+          <td><select name="team2_player3"></select></td>
+          <td><select name="team2_player4"></select></td>
+          <td><span id="team2"></span></td>
+          <td><input name="team2_score" type="text" style="width:3em" placeholder="0" autocomplete="off" /></td>
+        </tr>
+    </table>
+    <p>
+      Map :
+      <select name="map">
+        <option>Blood_Harvest</option>
+        <option>Cold_Stream</option>
+        <option>Crash_Course</option>
+        <option>Dark_Carnival</option>
+        <option>Dead_Air</option>
+        <option>Dead_Center</option>
+        <option>Death_Toll</option>
+        <option>No_Mercy</option>
+        <option>Swamp_Fever</option>
+        <option>The_Parish</option>
+        <option>The_Passing</option>
+        <option>The_Sacrifice</option>
+        <option>Hard_Rain</option>
+      </select>
+    </p>
+    <p>
+      Game Type :
+      <select name="game_type">
+        <option>Versus_Realisme</option>
+        <option>Taaank!!!_mod</option>
+      </select>
+    </p>
+    <input type=submit value=Enregistrer />
+  </form>
+  <script>
+
+    $(document).ready(function () {
+      $("#insert_new_match").submit(function () {
+        //we build the score object
+        var new_score = {
+          team1_player1: $('select[name=team1_player1]').children("option:selected").val(),
+          team1_player2: $('select[name=team1_player2]').children("option:selected").val(),
+          team1_player3: $('select[name=team1_player3]').children("option:selected").val(),
+          team1_player4: $('select[name=team1_player4]').children("option:selected").val(),
+          team2_player1: $('select[name=team2_player1]').children("option:selected").val(),
+          team2_player2: $('select[name=team2_player2]').children("option:selected").val(),
+          team2_player3: $('select[name=team2_player3]').children("option:selected").val(),
+          team2_player4: $('select[name=team2_player4]').children("option:selected").val(),
+          score_team1: $('input[name="team1_score"]').val(),
+          score_team2: $('input[name="team2_score"]').val(),
+          map: $('select[name=map]').children("option:selected").val(),
+          game_type: 'Versus_Realisme'
+        };
+        console.log(new_score);
+        //we post it 
+        $.ajax({
+          url: '/api/v1/matchs',
+          type: 'POST',
+          data: JSON.stringify(new_score),
+          contentType: 'application/json; charset=utf-8',
+          dataType: 'json',
+          async: true,
+          success: function (msg) {
+            console.log('sent bitches !!!');
+          }
+        })
+
+        return false;
+      });
+
+
+      $.ajax({
+        url: "/api/v1/joueurs"
+      }).then(function (data) {
+        if (data.data.count > 0) {
+          var joueurs_checkbox = '';
+          var joueurs_option = "<option value='bot'>bot</option>";
+
+          data.data.joueurs.forEach(function (item) {
+            if (!item.bot) {
+              joueurs_checkbox += '<label><input type="checkbox" data-id="' + item.id + '">';
+              joueurs_checkbox += item.pseudo + '</input></label><br>';
+              joueurs_option += "<option value='" + item.id + "'>" + item.pseudo + "</option>";
+            }
+
+          });
+          $('#joueurs').append(joueurs_checkbox);
+          $('select[name^=team]').append(joueurs_option);
+        }
+
+      }).then(function () {
+        $.ajax({
+          url: "/api/v1/last_calculs_by_method/2"
+        }).then(function (data) {
+          if (data.data.count > 0) {
+            data.data.calculs.forEach(function (item) {
+              PLAYERS.push({ id: item.id_joueur, elo: item.elo });
             });
-        </script>
-    </body>
+          }
+
+          ELO_BOT = [0., PLAYERS[0].elo, PLAYERS[1].elo, PLAYERS[2].elo];
+
+          compare_teams(get_team_elo(1), get_team_elo(2));
+
+          $("#joueurs input[type=checkbox]").change(split_players);
+          $("select[name^=team]").change(function () { compare_teams(get_team_elo(1), get_team_elo(2)); });
+          $("input[name^=team]").keyup(function () { compare_teams(get_team_elo(1), get_team_elo(2)); });
+        });
+      });
+
+
+    });
+
+
+
+  </script>
+</body>
+
 </html>
