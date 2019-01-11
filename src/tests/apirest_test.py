@@ -357,7 +357,7 @@ class AppTest(unittest.TestCase):
         # Request
         response = self.client.get('/api/v1/calculs', content_type='application/json')
         # Check
-        self.assertEquals(['count', 'last_import_date'], list(json.loads(response.data)['data'].keys()))
+        self.assertEquals(['calculs', 'count', 'last_import_date'], list(json.loads(response.data)['data'].keys()))
         self.assertEquals(1, json.loads(response.data)['data']['count'])
         self.assertEquals('200 OK', response.status)
     def test_get_specific_calcul(self):

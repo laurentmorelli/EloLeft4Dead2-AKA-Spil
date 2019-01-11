@@ -45,22 +45,23 @@ To restart dev docker :
 docker stop spil && docker-compose -f docker-compose.dev.yml up -d && docker exec -it spil bash
 ```
 
-### Run tests
+### Run unit tests
 
-Run `nosetests` inside the container
+```
+docker exec spil nosetests
+```
 
 ### Brutal clean of all dockers
 
 ```
 docker rm -f $(docker ps -a -q)
-
 docker rmi -f $(docker images -a -q)
-
 docker volume rm $(docker volume ls -q)
-
 docker network rm $(docker network ls | tail -n+2 | awk '{if($2 !~ /bridge|none|host/){ print $1 }}')
 ```
 
 ### clean pyc
 
+```
 find . -name "*.pyc" -exec rm -f {} \;
+```
