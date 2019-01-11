@@ -38,6 +38,19 @@
         if (urlParams.has(methodecst)) {
             methode_id = urlParams.get(methodecst);
         }
+
+        function histogram_bar(size, margin) {
+          var style = "width: " + Math.round(size) + "px;";
+          style += "margin-left: " + ( size<0 ? margin+size : margin ) + "px;";
+
+          if (size < 0)
+          {
+            style += "background-color: #955;";
+          }
+
+          return "<div class='histo' style='"+style+"'></div>";
+        }
+
         //anyway for the moment I have not migrated the calculation methods so...
         $(document).ready(function () {
             var joueursresponse = {};
@@ -66,7 +79,7 @@
                         data.data.calculs.forEach(function (item) {
                             htmlscript += '<tr>';
                             htmlscript += '<td>' + joueursresponse[item.id_joueur]['pseudo'] + '</td>';
-                            htmlscript += '<td>' + item.elo + '</td>';
+                            htmlscript += '<td>' + item.elo + histogram_bar(item.elo/6,0) + '</td>';
                             htmlscript += '</tr>';
                         });
                     }
