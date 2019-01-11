@@ -9,7 +9,7 @@
   <script>
 
     var PLAYERS = [];
-    var ELO_BOT = [];
+    var ELO_BOT = [0,0,0,0];
 
     function get_team_elo(n) {
       elo = 0;
@@ -273,6 +273,8 @@
   <script>
 
     $(document).ready(function () {
+
+
       $("#insert_new_match").submit(function () {
         //we build the score object
         var new_score = {
@@ -307,6 +309,7 @@
       });
 
 
+      // We load player list.
       $.ajax({
         url: "/api/v1/joueurs"
       }).then(function (data) {
@@ -315,35 +318,27 @@
           var joueurs_option = "<option value='bot'>bot</option>";
 
           data.data.joueurs.forEach(function (item) {
+            PLAYERS.push({id: item.id, elo: item.elo});
             if (!item.bot) {
               joueurs_checkbox += '<label><input type="checkbox" data-id="' + item.id + '">';
               joueurs_checkbox += item.pseudo + '</input></label><br>';
               joueurs_option += "<option value='" + item.id + "'>" + item.pseudo + "</option>";
             }
-
+            else if ( item.pseudo == "bot1" ) { ELO_BOT[1] = item.elo; }
+            else if ( item.pseudo == "bot2" ) { ELO_BOT[2] = item.elo; }
+            else if ( item.pseudo == "bot3" ) { ELO_BOT[3] = item.elo; }
           });
+
+          // Update DOM
           $('#joueurs').append(joueurs_checkbox);
           $('select[name^=team]').append(joueurs_option);
-        }
-
-      }).then(function () {
-        $.ajax({
-          url: "/api/v1/last_calculs_by_method/2"
-        }).then(function (data) {
-          if (data.data.count > 0) {
-            data.data.calculs.forEach(function (item) {
-              PLAYERS.push({ id: item.id_joueur, elo: item.elo });
-            });
-          }
-
-          ELO_BOT = [0., PLAYERS[0].elo, PLAYERS[1].elo, PLAYERS[2].elo];
-
           compare_teams(get_team_elo(1), get_team_elo(2));
 
+          // Register callbacks
           $("#joueurs input[type=checkbox]").change(split_players);
           $("select[name^=team]").change(function () { compare_teams(get_team_elo(1), get_team_elo(2)); });
           $("input[name^=team]").keyup(function () { compare_teams(get_team_elo(1), get_team_elo(2)); });
-        });
+        }
       });
 
 

@@ -300,6 +300,14 @@ def joueurs_information():
 
         joueurs = [{'id': x._id, 'pseudo': x.pseudo, 'bot': x.bot}
                    for x in joueur.Joueur.objects()]
+
+        # Now fill joueurs with elo of last match
+        last_id_match = match.Match.objects().order_by('-_id').limit(1).first()._id
+        for calc in calcul.Calcul.objects(id_match = last_id_match) :
+            for j in joueurs :
+                if calc['id_joueur'] == j['id'] :
+                    j['elo'] = calc.elo
+
         lastjoueur = joueur.Joueur.objects.only(
             'import_date').order_by("-import_date").limit(-1).first()
         return response(200, {'data': {'count': count, 'last_import_date': lastjoueur.import_date, 'joueurs': joueurs}})
@@ -407,7 +415,9 @@ def calculs_information():
             return response(200, {'data': {'count': count}})
         lastcalcul = calcul.Calcul.objects.only(
             'import_date').order_by("-import_date").limit(-1).first()
-        return response(200, {'data': {'count': count, 'last_import_date': lastcalcul.import_date}})
+        calculs = [{'elo': x.elo, 'import_date': x.import_date, 'id_methode': x.id_methode, 'id_match': x.id_match, 'id_joueur': x.id_joueur }
+                   for x in calcul.Calcul.objects()]
+        return response(200, {'data': {'count': count, 'last_import_date': lastcalcul.import_date, 'calculs': calculs}})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
