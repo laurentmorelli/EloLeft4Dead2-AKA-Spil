@@ -85,7 +85,7 @@
                         });
                     }
                     $('#classementtbody').append(htmlscript);
-                    $("#classement").tablesorter();
+                    $("#classement").tablesorter( { sortList: [[1,1]] } );
                 });
             }).then(function () {
                 //ok this time we need to get back all calculations by method
