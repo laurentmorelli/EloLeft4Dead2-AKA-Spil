@@ -18,6 +18,7 @@ from app.utils import simple_time_tracker
 
 @simple_time_tracker.simple_time_tracker()
 def compute_elo_by_methode_by_match(given_match,given_methode=None):
+    logger.info('- compute_elo_by_methode_by_match for match %s', str(given_match._id))
     #ok we retrieve all prior matchs
     allmatchs = match.Match.objects().all()
     priormatch =[]

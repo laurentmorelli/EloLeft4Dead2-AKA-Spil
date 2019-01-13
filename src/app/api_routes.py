@@ -6,6 +6,9 @@ from app.bem import match
 from app.bem import calcul
 from app.bem import joueur
 from app.bem import methode_de_calcul
+
+from app.businesslogiclayer import calculator
+
 from mongoengine import ValidationError, NotUniqueError
 from mongoengine.queryset.visitor import Q
 import datetime
@@ -230,6 +233,9 @@ def add_match():
 
         output = newmatch.save()
         logger.info(output)
+        #Now we calculate the elo
+        #calculator.compute_elo_by_methode_by_match(given_match = newmatch)
+        
         return response(201, {'data': output})
     except KeyError:
         logger.error('Invalid request : wrong key')
@@ -302,11 +308,13 @@ def joueurs_information():
                    for x in joueur.Joueur.objects()]
 
         # Now fill joueurs with elo of last match
-        last_id_match = match.Match.objects().order_by('-_id').limit(1).first()._id
-        for calc in calcul.Calcul.objects(id_match = last_id_match) :
-            for j in joueurs :
-                if calc['id_joueur'] == j['id'] :
-                    j['elo'] = calc.elo
+        nbMatchs = match.Match.objects().count()
+        if nbMatchs > 0:
+            last_id_match = match.Match.objects().order_by('-_id').limit(1).first()._id
+            for calc in calcul.Calcul.objects(id_match = last_id_match) :
+                for j in joueurs :
+                    if calc['id_joueur'] == j['id'] :
+                        j['elo'] = calc.elo
 
         lastjoueur = joueur.Joueur.objects.only(
             'import_date').order_by("-import_date").limit(-1).first()
@@ -660,6 +668,26 @@ def delete_methode_de_calcul(methode_de_calcul_id):
         # Delete methode_de_calcul
         todelete_methode_de_calcul.delete()
         return response(200, {'data': {'message': 'methode_de_calcul successfully deleted'}})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+
+
+@api.route('/api/v1/calculate/<int:id_match>', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def calculate_matchid(id_match):
+    """ Get methode_de_calculs information"""
+    try:
+        #do we have the expected match ?
+        match_to_calculate = match.Match.objects(
+            _id=id_match)
+        if not match_to_calculate:
+            return response(404, {'error': 'Invalid request : no match found found with provided id_match' + str(id_match)})
+
+        calculator.compute_elo_by_methode_by_match(given_match = match_to_calculate.first())
+
+        return response(201, {'data': 'calculation succesfully ran for match ' + str(id_match)})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})

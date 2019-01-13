@@ -10,7 +10,7 @@
   <script>
 
     var PLAYERS = [];
-    var ELO_BOT = [0,0,0,0];
+    var ELO_BOT = [0, 0, 0, 0];
 
     function get_team_elo(n) {
       elo = 0;
@@ -301,8 +301,17 @@
           contentType: 'application/json; charset=utf-8',
           dataType: 'json',
           async: true,
-          success: function (msg) {
-            console.log('sent bitches !!!');
+          success: function (data) {
+            //so the match is recorded on the server, we can now request the calculation
+            //We retrieve the id of the match
+            console.log(data);
+            var id_match = data.data._id;
+            //we make a call for the calculation
+            $.ajax({
+              url: "/api/v1/calculate/" + id_match.toString()
+            }).then(function (data) {
+              window.location.href = "index.html";
+            });
           }
         })
 
@@ -319,15 +328,15 @@
           var joueurs_option = "<option value='bot'>bot</option>";
 
           data.data.joueurs.forEach(function (item) {
-            PLAYERS.push({id: item.id, elo: item.elo});
+            PLAYERS.push({ id: item.id, elo: item.elo });
             if (!item.bot) {
               joueurs_checkbox += '<label><input type="checkbox" data-id="' + item.id + '">';
               joueurs_checkbox += item.pseudo + '</input></label><br>';
               joueurs_option += "<option value='" + item.id + "'>" + item.pseudo + "</option>";
             }
-            else if ( item.pseudo == "bot1" ) { ELO_BOT[1] = item.elo; }
-            else if ( item.pseudo == "bot2" ) { ELO_BOT[2] = item.elo; }
-            else if ( item.pseudo == "bot3" ) { ELO_BOT[3] = item.elo; }
+            else if (item.pseudo == "bot1") { ELO_BOT[1] = item.elo; }
+            else if (item.pseudo == "bot2") { ELO_BOT[2] = item.elo; }
+            else if (item.pseudo == "bot3") { ELO_BOT[3] = item.elo; }
           });
 
           // Update DOM
