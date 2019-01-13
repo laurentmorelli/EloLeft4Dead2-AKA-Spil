@@ -24,7 +24,7 @@
             <tr>
                 <th class='header'>Joueur</th>
                 <th class='header'>ELO</th>
-                <!--<th class='header'>Progression</th>-->
+                <th class='header'>Progression</th>
             </tr>
         </thead>
         <tbody id="classementtbody">
@@ -55,7 +55,6 @@
         //anyway for the moment I have not migrated the calculation methods so...
         $(document).ready(function () {
             var joueursresponse = {};
-            var matchsresponse;
             $.ajax({
                 url: "/api/v1/joueurs"
             }).then(function (data) {
@@ -70,25 +69,17 @@
                     );
                 }
             }).then(function () {
-                //let's populate our first table
                 $.ajax({
                     url: "/api/v1/last_calculs_by_method/" + methode_id
                 }).then(function (data) {
                     if (data.data.count > 0) {
-                        var htmlscript = '';
-                        //let's build our table
                         data.data.calculs.forEach(function (item) {
-                            htmlscript += '<tr>';
-                            htmlscript += '<td>' + joueursresponse[item.id_joueur]['pseudo'] + '</td>';
-                            htmlscript += '<td>' + item.elo + histogram_bar(item.elo/6,0) + '</td>';
-                            htmlscript += '</tr>';
+                          joueursresponse[item.id_joueur]['elo'] = item.elo;
                         });
                     }
-                    $('#classementtbody').append(htmlscript);
-                    $("#classement").tablesorter( { sortList: [[1,1]] } );
                 });
             }).then(function () {
-                //ok this time we need to get back all calculations by method
+                // We need load all calculations of current method.
                 $.ajax({
                     url: "/api/v1/all_calculs_by_method/" + methode_id
                 }).then(function (data) {
@@ -97,6 +88,7 @@
                         var all_calculs = data.data.calculs;
                         var matchids = Array.from(new Set(all_calculs.map(x => x.id_match)));
                         matchids.sort((a, b) => a - b);
+                        var penultieme_match_id = matchids[ matchids.length - 2 ];
                         var scores_by_matchs = {}
                         all_calculs.forEach(function (item) {
                             if (item.id_joueur in scores_by_matchs) {
@@ -105,6 +97,12 @@
                             else {
                                 scores_by_matchs[item.id_joueur] = [item.elo];
                             }
+
+                          // penultieme score is needed to compute progress.
+                           if (item.id_match == penultieme_match_id)
+                           {
+                             joueursresponse[item.id_joueur]['progress'] = joueursresponse[item.id_joueur]['elo'] - item.elo;
+                           }
                         })
                         var serie_to_display = [];
                         for (const [key, value] of Object.entries(scores_by_matchs)) {
@@ -146,11 +144,25 @@
                             series: serie_to_display
                         });
 
+                    }
+                }).then(function () {
+                    var htmlscript = '';
+                    //let's build first table
+                    for ( id_joueur in joueursresponse) {
+                      j = joueursresponse[id_joueur];
+                        htmlscript += '<tr>';
+                        htmlscript += '<td>' + j.pseudo + '</td>';
+                        htmlscript += '<td>' + j.elo + histogram_bar(j.elo/6,0) + '</td>';
+                        htmlscript += '<td>' + j.progress + histogram_bar(j.progress,40)  + '</td>';
+                        htmlscript += '</tr>';
+                    }
+                    $('#classementtbody').append(htmlscript);
+                    $("#classement").tablesorter( { sortList: [[1,1]] } );
+            }).then(function () {
+
                         //ok now let's write our little html for the overing stuff
                         //we need to retrieve all the matchs right ?
 
-                    }
-                }).then(function () {
                     $.ajax({
                         url: "/api/v1/matchs"
                     }).then(function (data) {
