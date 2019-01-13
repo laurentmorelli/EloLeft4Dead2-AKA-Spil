@@ -96,7 +96,7 @@
                         //let's prepare our datas for highcharts
                         var all_calculs = data.data.calculs;
                         var matchids = Array.from(new Set(all_calculs.map(x => x.id_match)));
-                        matchids.sort();
+                        matchids.sort((a, b) => a - b);
                         var scores_by_matchs = {}
                         all_calculs.forEach(function (item) {
                             if (item.id_joueur in scores_by_matchs) {
@@ -108,7 +108,7 @@
                         })
                         var serie_to_display = [];
                         for (const [key, value] of Object.entries(scores_by_matchs)) {
-                            serie_to_display.push({ name: key, data: value })
+                            serie_to_display.push({ name: joueursresponse[key]['pseudo'], data: value })
                         }
 
                         //let's populate highcharts
