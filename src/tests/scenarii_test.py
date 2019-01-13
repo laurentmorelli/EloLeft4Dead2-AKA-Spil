@@ -86,12 +86,14 @@ class AppTest(unittest.TestCase):
         calcul_number = calcul.Calcul.objects.count()
         self.assertEquals(0, calcul_number)
 
-        #alright let's try to calculate the elo for the last match -> 63
-
-        match_to_calculate = match.Match.objects(_id = 63).first()
-        calculator.compute_elo_by_methode_by_match(given_match = match_to_calculate)
+        #alright let's try to calculate the elo for the all the matchs
+        #first let's take all the ids
+        matchids = [int(x['_id']) for x in jdata["matchs"]]
+        for match_id in matchids:
+            match_to_calculate = match.Match.objects(_id = match_id).first()
+            calculator.compute_elo_by_methode_by_match(given_match = match_to_calculate)
 
         #ok we shall have now some calculations recorded in our db ;)
         calcul_number = calcul.Calcul.objects.count()
-        self.assertEquals(15, calcul_number)
+        self.assertEquals(960, calcul_number)
 
