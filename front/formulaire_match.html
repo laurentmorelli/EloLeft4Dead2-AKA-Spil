@@ -261,6 +261,7 @@
         <option>The_Sacrifice</option>
         <option>Hard_Rain</option>
       </select>
+      <a href="javascript:randomize_map(map_dice_state)">random</a>
     </p>
     <p>
       Game Type :
@@ -351,10 +352,37 @@
         }
       });
 
-
     });
 
 
+    // Random map feature.
+
+    var MAP_LIST = [];
+    $("select[name=map] option").each(function () {
+      MAP_LIST.push( $(this).html() );
+    } );
+
+    var map_dice_state = {};
+    function randomize_map(dice) {
+      dice.rollTime = 12;
+      if (!dice.refreshIntervalId) // Check is not already rolling.
+      {
+        // Start rolling...
+        dice.refreshIntervalId = setInterval( function() {
+          randvalue = Math.floor( Math.random() * MAP_LIST.length );
+          $("select[name=map").val(MAP_LIST[randvalue]);
+
+          // Stop condition
+          if (dice.rollTime > 0) {
+            dice.rollTime--;
+          }
+          else {
+            clearInterval(dice.refreshIntervalId);
+            dice.refreshIntervalId = null;
+          }
+        }, 100);
+      }
+    }
 
   </script>
 </body>
