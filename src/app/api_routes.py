@@ -208,7 +208,7 @@ def add_match():
         team1_player1 = str(botTeam1) if team1_player1 == 'bot' else team1_player1
         team1_player2 = str(botTeam1) if team1_player2 == 'bot' else team1_player2
         team1_player3 = str(botTeam1) if team1_player3 == 'bot' else team1_player3
-        team1_player4 = str(botTeam1) if team1_player4 == 'bot' else team1_player1
+        team1_player4 = str(botTeam1) if team1_player4 == 'bot' else team1_player4
         team2_player1 = str(botTeam2) if team2_player1 == 'bot' else team2_player1
         team2_player2 = str(botTeam2) if team2_player2 == 'bot' else team2_player2
         team2_player3 = str(botTeam2) if team2_player3 == 'bot' else team2_player3
