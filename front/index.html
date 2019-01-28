@@ -41,7 +41,7 @@
         }
 
         function histogram_bar(size, margin) {
-          var style = "width: " + Math.round(size) + "px;";
+          var style = "width: " + Math.abs(Math.round(size)) + "px;";
           style += "margin-left: " + ( size<0 ? margin+size : margin ) + "px;";
 
           if (size < 0)
