@@ -692,6 +692,22 @@ def calculate_matchid(id_match):
         logger.error(exception)
         abort(500, {'error': 'Internal error'})
 
+
+@api.route('/api/v1/calculate_all_match/', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def calculate_all_match():
+    """ Get methode_de_calculs information"""
+    try:
+        #let's retrieve all match ids and relaunch all calculations
+        match_to_calculate = match.Match.objects()
+        for givenmatch in match_to_calculate:
+            calculator.compute_elo_by_methode_by_match(given_match = givenmatch)
+
+        return response(201, {'data': 'all matchs have been recalculated '})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
 # ----------
 # Gateway (NOT FOUND)
 # ----------
