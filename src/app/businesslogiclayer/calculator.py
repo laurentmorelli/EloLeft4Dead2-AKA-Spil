@@ -56,16 +56,17 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
     matrice_resultats = np.zeros((N_match,1))
     vecteur_elo_initial = 1500 * np.ones((N_joueurs,1))
 
+
     for inner_match in priormatch:
         try:
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player1]] =1
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player2]] =1
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player3]] =1
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player4]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player1]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player2]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player3]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player4]] =1
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player1]] =-1
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player2]] =-1
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player3]] =-1
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player4]] =-1
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 1000*(inner_match.score_team1-inner_match.score_team2)/(inner_match.score_team1+inner_match.score_team2)
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 500*(log(inner_match.score_team1)-log(inner_match.score_team2))
         except Exception as exception:
@@ -73,9 +74,16 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
             logger.error(id_matchs_dim_dict[inner_match.id])
             logger.error(id_joueurs_dim_dict[inner_match.team1_player1])
 
+    #logger.info('matrice_participants')
+    #logger.info(matrice_participants)
+    #logger.info('matrice_resultats')
+    #logger.info(matrice_resultats)
 
     pseudoinverted_matrice = pinv(matrice_participants)
     elos = np.dot(pseudoinverted_matrice, matrice_resultats)
+
+    #logger.info('elos')
+    #logger.info(elos)
     elos = elos + vecteur_elo_initial
 
     #alright now we save the elo

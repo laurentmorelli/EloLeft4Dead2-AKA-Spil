@@ -6,10 +6,10 @@ services:
     ports:
       - 8084:80
     volumes:
-      - /code/app/EloLeft4Dead2-AKA-Spil/src:/src
-      - /code/app/EloLeft4Dead2-AKA-Spil/front:/front
-      - /code/log/EloLeft4Dead2-AKA-Spil/:/var/log/EloLeft4Dead2-AKA-Spil
-      - /code/data/db:/data/db
+      - ./src:/src
+      - ./front:/front
+      - ./log:/var/log/EloLeft4Dead2-AKA-Spil
+      #- /code/data/db:/data/db
     environment:
       - DEBUG=True
       - TESTING=True
