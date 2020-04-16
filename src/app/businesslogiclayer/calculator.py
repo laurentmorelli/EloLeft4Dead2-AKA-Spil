@@ -5,6 +5,7 @@ from app.bem import match
 from app.bem import calcul
 from numpy import array
 from math import log
+import math
 from numpy.linalg import pinv
 import numpy as np
 import pickle
@@ -59,14 +60,16 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
 
     for inner_match in priormatch:
         try:
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player1]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player2]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player3]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player4]] =1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player1]] =-1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player2]] =-1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player3]] =-1
-            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player4]] =-1
+            coefvic = round(1/math.sqrt(N_match-id_matchs_dim_dict[inner_match.id]),3)
+            coefloos = - round(1/math.sqrt(N_match-id_matchs_dim_dict[inner_match.id]),3)
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player1]] = coefvic
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player2]] = coefvic
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player3]] = coefvic
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player4]] = coefvic
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player1]] = coefloos
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player2]] = coefloos
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player3]] = coefloos
+            matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team2_player4]] = coefloos
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 1000*(inner_match.score_team1-inner_match.score_team2)/(inner_match.score_team1+inner_match.score_team2)
             matrice_resultats[id_matchs_dim_dict[inner_match.id]][0] = 500*(log(inner_match.score_team1)-log(inner_match.score_team2))
         except Exception as exception:
