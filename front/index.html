@@ -104,10 +104,13 @@
                              joueursresponse[item.id_joueur]['progress'] = joueursresponse[item.id_joueur]['elo'] - item.elo;
                            }
                         })
+
                         var serie_to_display = [];
                         for (const [key, value] of Object.entries(scores_by_matchs)) {
-                            serie_to_display.push({ name: joueursresponse[key]['pseudo'], data: value })
+                            serie_to_display.push({ name: joueursresponse[key]['pseudo'], data: value, elo: joueursresponse[key]['elo'] })
                         }
+                        // Tri par ELO pour avoir la legende dans le meme ordre que les courbes.
+                        serie_to_display.sort((a, b) => b['elo'] - a['elo']);
 
                         //let's populate highcharts
                         $('#container').highcharts({
