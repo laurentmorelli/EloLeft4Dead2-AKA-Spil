@@ -12,13 +12,19 @@
     var PLAYERS = [];
     var ELO_BOT = [0, 0, 0, 0];
 
+    function get_player(id) {
+      for (const player of PLAYERS) {
+        if (player.id == id) return player;
+      }
+    }
+
     function get_team_elo(n) {
       elo = 0;
       bot_nb = 4;
       $("select[name^=team" + n + "]").each(function () {
         p_id = $(this).val();
         if (p_id != "bot") {
-          elo += PLAYERS[p_id].elo;
+          elo += get_player(p_id).elo;
           --bot_nb;
         }
       });
@@ -111,7 +117,7 @@
       var players = [];
 
       $("#joueurs input[type=checkbox]:checked").each(function () {
-        var p = PLAYERS[parseInt($(this).attr("data-id"))];
+        var p = get_player( parseInt($(this).attr("data-id")) );
         players.push(p);
         E += p.elo;
       });
