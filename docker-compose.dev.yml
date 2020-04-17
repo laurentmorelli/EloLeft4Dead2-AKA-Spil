@@ -9,7 +9,7 @@ services:
       - ./src:/src
       - ./front:/front
       - ./log:/var/log/EloLeft4Dead2-AKA-Spil
-      - /code/data/db:/data/db
+      #- /code/data/db:/data/db
     environment:
       - DEBUG=True
       - TESTING=True

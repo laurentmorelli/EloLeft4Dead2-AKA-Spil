@@ -60,8 +60,8 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
 
     for inner_match in priormatch:
         try:
-            coefvic = round(1/math.sqrt(N_match-id_matchs_dim_dict[inner_match.id]),3)
-            coefloos = - round(1/math.sqrt(N_match-id_matchs_dim_dict[inner_match.id]),3)
+            coefvic = getcoefvic(N_match,id_matchs_dim_dict[inner_match.id])
+            coefloos = -coefvic
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player1]] = coefvic
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player2]] = coefvic
             matrice_participants[id_matchs_dim_dict[inner_match.id]][id_joueurs_dim_dict[inner_match.team1_player3]] = coefvic
@@ -118,3 +118,15 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
         
 
     return elos
+
+
+
+def getcoefvic(N_match, i):
+    if N_match - i < 10:
+        return round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
+    if N_match - i > 15:
+        return round(1/math.sqrt(N_match-i),3)
+    else:
+        sup = round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
+        inf = round(1/math.sqrt(N_match-i),3)
+        return (sup + inf)/2
