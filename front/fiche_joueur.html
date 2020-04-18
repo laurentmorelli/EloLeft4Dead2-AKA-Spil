@@ -28,7 +28,19 @@
     <table id="tableelos">
     </table>
     <h2> Historique de ses combats : </h2>
-    <table id="tablematch">
+    <table id="tablematch" align="center">
+        <thead>
+            <tr>
+                <th>N° match</th>
+                <th>Equipe 1</th>
+                <th>Score</th>
+                <th>Equipe 2</th>
+                <th>Date</th>
+                <th>Map</th>
+            </tr>
+        </thead>
+        <tbody id="tablematchbody" align="center">
+        </tbody>
     </table>
     <script>
         $(document).ready(function () {
@@ -75,24 +87,24 @@
                                 htmlscript += '<tr>';
                                 htmlscript += '<td>' + item.id + '</td>';
                                 // team 1
-                                htmlscript += '<td>' + joueursresponse[item.team1_player1]['pseudo'] + '</td>';
+                                htmlscript += '<td>' + joueursresponse[item.team1_player1]['pseudo'] + '<br>';
                                 if (joueursresponse[item.team1_player2]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team1_player2]['pseudo'] + '</td>';
+                                    htmlscript += joueursresponse[item.team1_player2]['pseudo'] + '<br>';
                                 }
                                 if (joueursresponse[item.team1_player3]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team1_player3]['pseudo'] + '</td>';
+                                    htmlscript +=  joueursresponse[item.team1_player3]['pseudo'] + '<br>';
                                 }
                                 if (joueursresponse[item.team1_player4]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '</td>';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team1_player4]['pseudo'] + '</td>';
+                                    htmlscript += joueursresponse[item.team1_player4]['pseudo'] + '</td>';
                                 }
                                 //the scores !!!
                                 if (item.score_team1 > item.score_team2) {
@@ -102,27 +114,29 @@
                                     htmlscript += '<td>' + item.score_team1 + "&nbsp-&nbsp;<strong>" + item.score_team2 + '</strong></td>';
                                 }
                                 //team 2
-                                htmlscript += '<td>' + joueursresponse[item.team2_player1]['pseudo'] + '</td>';
+                                htmlscript += '<td>' + joueursresponse[item.team2_player1]['pseudo'] + '<br>';
                                 if (joueursresponse[item.team2_player2]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team2_player2]['pseudo'] + '</td>';
+                                    htmlscript += joueursresponse[item.team2_player2]['pseudo'] + '<br>';
                                 }
                                 if (joueursresponse[item.team2_player3]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team2_player3]['pseudo'] + '</td>';
+                                    htmlscript += joueursresponse[item.team2_player3]['pseudo'] + '<br>';
                                 }
                                 if (joueursresponse[item.team2_player4]['bot']) {
-                                    htmlscript += '<td></td>';
+                                    htmlscript += '</td>';
                                 }
                                 else {
-                                    htmlscript += '<td>' + joueursresponse[item.team2_player4]['pseudo'] + '</td>';
+                                    htmlscript += joueursresponse[item.team2_player4]['pseudo'] + '</td>';
                                 }
                                 //global info
-                                htmlscript += '<td>' + item.date + '</td>';
+                                var date = new Date(item.date);
+                                var dateresult = date.getUTCDate() + '-' + (date.getUTCMonth()+1) + '-' + date.getUTCFullYear();
+                                htmlscript += '<td>' + dateresult + '</td>';
                                 htmlscript += '<td>' + item.map + '</td>';
 
                                 htmlscript += '</tr>';
@@ -131,7 +145,7 @@
 
                         }
 
-                        $('#tablematch').append(htmlscript);
+                        $('#tablematchbody').append(htmlscript);
                     });
 
                 });
