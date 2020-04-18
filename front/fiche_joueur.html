@@ -29,6 +29,24 @@
     </table>
     <h2> Historique de ses combats : </h2>
     <table id="tablematch">
+        <thead>
+            <tr>
+                <th>N° match</th>
+                <th>Equipe 1</th>
+                <!-- <th></th>
+                <th></th>
+                <th></th> -->
+                <th>Score</th>
+                <th>Equipe 2</th>
+                <!-- <th></th>
+                <th></th>
+                <th></th> -->
+                <th>Date</th>
+                <th>Map</th>
+            </tr>
+        </thead>
+        <tbody id="tablematchbody">
+        </tbody>
     </table>
     <script>
         $(document).ready(function () {
@@ -131,7 +149,7 @@
 
                         }
 
-                        $('#tablematch').append(htmlscript);
+                        $('#tablematchbody').append(htmlscript);
                     });
 
                 });
