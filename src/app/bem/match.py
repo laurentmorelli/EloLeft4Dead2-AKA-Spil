@@ -21,6 +21,7 @@ class Match(db.Document):
     team2_player4= db.StringField() 
     score_team1 = db.IntField(required=True)
     score_team2 = db.IntField(required=True)
+    season_id = db.IntField()
     date = db.StringField()
     map = db.StringField()         
     game_type = db.StringField()

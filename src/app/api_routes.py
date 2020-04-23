@@ -8,6 +8,7 @@ from app.bem import joueur
 from app.bem import methode_de_calcul
 
 from app.businesslogiclayer import calculator
+from app.businesslogiclayer import season_manager
 
 from mongoengine import ValidationError, NotUniqueError
 from mongoengine.queryset.visitor import Q
@@ -214,6 +215,7 @@ def add_match():
         team2_player3 = str(botTeam2) if team2_player3 == 'bot' else team2_player3
         team2_player4 = str(botTeam2) if team2_player4 == 'bot' else team2_player4
 
+
         newmatch = match.Match(
             _id=matchId,
             team1_player1=team1_player1,
@@ -228,7 +230,8 @@ def add_match():
             score_team2=score_team2,
             date=date_match,
             map=request.json['map'],
-            game_type=request.json['game_type']
+            game_type=request.json['game_type'],
+            season_id = season_manager.getSeasonFromMatchId(matchId)
         )
 
         output = newmatch.save()
@@ -704,6 +707,20 @@ def calculate_all_match():
             calculator.compute_elo_by_methode_by_match(given_match = givenmatch)
 
         return response(201, {'data': 'all matchs have been recalculated '})
+    except Exception as exception:
+        logger.error(exception)
+        abort(500, {'error': 'Internal error'})
+
+
+@api.route('/api/v1/set_seasons/', methods=['GET'])
+@simple_time_tracker.simple_time_tracker()
+def set_seasons():
+    """ Get methode_de_calculs information"""
+    try:
+        #let's set all seasons
+        season_manager.reset_seasons()
+        
+        return response(201, {'data': 'all matchs have been set to their seasons '})
     except Exception as exception:
         logger.error(exception)
         abort(500, {'error': 'Internal error'})

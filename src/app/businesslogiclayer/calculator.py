@@ -20,8 +20,8 @@ from app.utils import simple_time_tracker
 @simple_time_tracker.simple_time_tracker()
 def compute_elo_by_methode_by_match(given_match,given_methode=None):
     logger.info('- compute_elo_by_methode_by_match for match %s', str(given_match._id))
-    #ok we retrieve all prior matchs
-    allmatchs = match.Match.objects().all()
+    #ok we retrieve all prior matchs for current season
+    allmatchs = match.Match.objects(season_id=given_match.season_id).all()
     priormatch =[]
     for inner_match in allmatchs:
         if inner_match.import_date < given_match.import_date:
