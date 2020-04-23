@@ -122,11 +122,16 @@ def compute_elo_by_methode_by_match(given_match,given_methode=None):
 
 
 def getcoefvic(N_match, i):
-    if N_match - i < 10:
-        return round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
-    if N_match - i > 15:
-        return round(1/math.sqrt(N_match-i),3)
+    currentMethod = 'GLOBAL'
+
+    if currentMethod == 'GLOBAL':
+        return 1
     else:
-        sup = round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
-        inf = round(1/math.sqrt(N_match-i),3)
-        return (sup + inf)/2
+        if N_match - i < 10:
+            return round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
+        if N_match - i > 15:
+            return round(1/math.sqrt(N_match-i),3)
+        else:
+            sup = round(1/math.sqrt(math.sqrt(math.sqrt(N_match-i))),3)
+            inf = round(1/math.sqrt(N_match-i),3)
+            return (sup + inf)/2
