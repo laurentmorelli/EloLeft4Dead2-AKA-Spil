@@ -23,7 +23,7 @@ This project provides a docker container with :
 
 - Clone project :
 ```
-cd /code/app/
+cd ~/code/app/
 git clone https://github.com/laurentmorelli/EloLeft4Dead2-AKA-Spil
 cd EloLeft4Dead2-AKA-Spil
 ```
