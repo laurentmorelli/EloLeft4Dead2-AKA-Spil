@@ -1,5 +1,5 @@
 Flask==1.0.2
 flask-mongoengine==0.9.5
-numpy==1.15
+numpy==1.22.0
 scipy==1.2.0 
 requests==2.21.0
